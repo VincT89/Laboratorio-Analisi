@@ -198,7 +198,7 @@
         gap: 7px;
         cursor: pointer;
         font-size: 13px;
-        color: rgba(255,255,255,0.7);
+        color: #18243A;
     }
 
     .client-type-option input[type="radio"] {

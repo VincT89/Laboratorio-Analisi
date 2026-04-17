@@ -45,7 +45,7 @@
                             <input type="checkbox" name="is_sensitive" value="1" {{ old('is_sensitive') ? 'checked' : '' }}>
                             <span>Tipo Sensibile (Privacy Elevata)</span>
                         </label>
-                        <small class="form-help-text">Se attivo, lo staff vedrà solo codice campione e stato workflow.</small>
+                        <small class="form-help-text">Se attivo, lo staff vedrà solo codice campione.</small>
                     </div>
                 </div>
 

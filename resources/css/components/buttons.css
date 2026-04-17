@@ -64,6 +64,18 @@
         border-color: rgba(239,68,68,0.35);
     }
 
+    /* Warning */
+    .btn-warning {
+        background: rgba(245,158,11,0.08);
+        color: #B45309;
+        border-color: rgba(245,158,11,0.25);
+    }
+
+    .btn-warning:hover {
+        background: rgba(245,158,11,0.2);
+        border-color: rgba(245,158,11,0.35);
+    }
+
     /* Ghost */
     .btn-ghost {
         background: transparent;
