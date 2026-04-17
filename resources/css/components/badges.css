@@ -1,0 +1,68 @@
+/* Badges — stati campione e altri indicatori */
+@layer components {
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    /* Pallino colorato dentro il badge */
+    .badge-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    /* Stato: prelevato */
+    .badge-collected {
+        background: rgba(245,158,11,0.12);
+        color: #92620A;
+        border-color: rgba(245,158,11,0.30);
+    }
+
+    .badge-collected .badge-dot {
+        background: #F59E0B;
+    }
+
+    /* Stato: accettato */
+    .badge-accepted {
+        background: rgba(37,99,235,0.10);
+        color: #1A52B3;
+        border-color: rgba(37,99,235,0.25);
+    }
+
+    .badge-accepted .badge-dot {
+        background: #3B82F6;
+    }
+
+    /* Stato: completato */
+    .badge-completed {
+        background: rgba(22,163,74,0.10);
+        color: #166534;
+        border-color: rgba(22,163,74,0.25);
+    }
+
+    .badge-completed .badge-dot {
+        background: #22C55E;
+    }
+
+    /* Badge archiviato */
+    .badge-archived {
+        background: #E8EEF6;
+        color: #7A88A0;
+        border-color: #CDD4E2;
+    }
+
+    .badge-archived .badge-dot {
+        background: rgba(255,255,255,0.3);
+    }
+}

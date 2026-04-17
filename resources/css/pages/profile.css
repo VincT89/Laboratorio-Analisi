@@ -1,0 +1,100 @@
+/* Profile — stili pagina profilo */
+@layer components {
+
+    .profile-wrap {
+        max-width: 720px;
+        margin: 24px 0 0;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .profile-section {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        border-radius: 10px;
+        padding: 24px;
+    }
+
+    .profile-section-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #18243A;
+        margin-bottom: 4px;
+    }
+
+    .profile-section-sub {
+        font-size: 13px;
+        color: #7A88A0;
+        margin-bottom: 20px;
+    }
+
+    /* Form footer e messaggi */
+    .profile-form-footer {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 20px;
+    }
+
+    .profile-saved-msg {
+        font-size: 12px;
+        color: #166534;
+        font-weight: 500;
+    }
+
+    /* Verifica email */
+    .profile-verify-notice {
+        margin-top: 8px;
+    }
+
+    .profile-verify-text {
+        font-size: 12px;
+        color: #92620A;
+    }
+
+    .profile-verify-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        color: #92620A;
+        text-decoration: underline;
+        padding: 0;
+    }
+
+    .profile-verify-sent {
+        margin-top: 6px;
+        font-size: 12px;
+        color: #86EFAC;
+        font-weight: 500;
+    }
+
+
+    /* Modal eliminazione account */
+    .profile-delete-modal {
+        padding: 24px;
+    }
+
+    .profile-delete-modal-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 8px;
+    }
+
+    .profile-delete-modal-sub {
+        font-size: 13px;
+        color: rgba(255,255,255,0.45);
+        line-height: 1.6;
+    }
+
+    .profile-delete-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+}

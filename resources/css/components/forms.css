@@ -1,0 +1,122 @@
+/* Forms — campi input, select, textarea */
+@layer components {
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        color: #4A5A72;
+        margin-bottom: 5px;
+    }
+
+    .form-label.required::after {
+        content: ' *';
+        color: #FCA5A5;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 8px 10px;
+        font-size: 14px;
+        color: #18243A;
+        background: #fff;
+        border: 1px solid #CDD4E2;
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.12s, box-shadow 0.12s;
+        line-height: 1.5;
+        color-scheme: light;
+    }
+
+    .form-control:focus {
+        border-color: rgba(7,133,134,0.5);
+        box-shadow: 0 0 0 3px rgba(7,133,134,0.10);
+    }
+
+    .form-control::placeholder {
+        color: #9BAABF;
+    }
+
+    .form-control.is-invalid {
+        border-color: rgba(239,68,68,0.5);
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.12);
+    }
+
+    /* Textarea */
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    /* Select */
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%236B6560' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 28px;
+    }
+
+    select.form-control option {
+        background: #fff;
+        color: #18243A;
+    }
+
+    /* Messaggio di errore */
+    .form-error {
+        font-size: 11px;
+        color: #B91C1C;
+        margin-top: 4px;
+    }
+
+    /* Hint sotto il campo */
+    .form-hint {
+        font-size: 11px;
+        color: #9BAABF;
+        margin-top: 4px;
+    }
+
+    /* Griglia form a due colonne */
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    /* Griglia form a tre colonne */
+    .form-grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    /* Sezione form con titolo */
+    .form-section {
+        margin-bottom: 28px;
+    }
+
+    .form-section-title {
+        font-size: 12px;
+        font-weight: 600;
+        color: #7A88A0;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #D4DBE8;
+    }
+
+    /* Card form */
+    .form-card {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+}

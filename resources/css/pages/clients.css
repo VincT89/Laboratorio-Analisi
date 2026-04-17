@@ -1,0 +1,263 @@
+/* Clients — stili specifici pagina clienti */
+@layer components {
+
+    /* Header scheda cliente (lista) */
+    .client-header {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .client-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        background: rgba(37,99,235,0.08);
+        border: 1px solid rgba(37,99,235,0.20);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 600;
+        color: #1A52B3;
+        flex-shrink: 0;
+    }
+
+    .client-header-info { flex: 1; min-width: 0; }
+
+    .client-header-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #18243A;
+        letter-spacing: -0.01em;
+    }
+
+    .client-header-meta {
+        font-size: 12px;
+        color: #7A88A0;
+        margin-top: 2px;
+    }
+
+    /* Dettaglio cliente (show) */
+    .client-detail {
+        width: 100%;
+        margin: 16px auto 0;
+    }
+
+    .client-show-header {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        border-radius: 10px;
+        padding: 20px 24px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .client-show-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: #18243A;
+        letter-spacing: -0.02em;
+        margin-bottom: 6px;
+    }
+
+    .client-show-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: #4A5A72;
+    }
+
+    .client-show-type {
+        font-size: 11px;
+        background: #E8EEF6;
+        border: 1px solid #CDD4E2;
+        border-radius: 4px;
+        padding: 2px 7px;
+        color: #4A5A72;
+    }
+
+    .client-show-meta-sep { color: rgba(255,255,255,0.2); }
+
+    .client-show-link { color: #078586; text-decoration: none; }
+    .client-show-link:hover { text-decoration: underline; }
+
+    /* Grid dettagli anagrafici */
+    .client-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap: 24px;
+    }
+
+    .client-detail-section-title {
+        font-size: 10px;
+        font-weight: 700;
+        color: #9BAABF;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        margin-bottom: 12px;
+    }
+
+    .client-detail-label {
+        font-size: 12px;
+        color: #7A88A0;
+        font-weight: 500;
+        margin-bottom: 3px;
+    }
+
+    .client-detail-value {
+        font-size: 14px;
+        color: #18243A;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .client-detail-notes {
+        grid-column: 1 / -1;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        padding-top: 16px;
+    }
+
+    .client-detail-notes-body {
+        margin-top: 6px;
+        font-size: 13px;
+        color: #253248;
+        background: #F4F6FB;
+        border: 1px solid #D4DBE8;
+        border-radius: 6px;
+        padding: 12px 14px;
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    /* Barra ricerca clienti */
+    .client-search-bar {
+        padding: 12px 16px;
+        border-bottom: 1px solid #E0E6F0;
+        background: #F4F6FB;
+    }
+
+    .client-search-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 480px;
+    }
+
+    .client-search-input { flex: 1; }
+
+    /* Link nome cliente in tabella */
+    .client-name-link {
+        font-size: 14px;
+        font-weight: 500;
+        color: #18243A;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.12s;
+    }
+
+    .client-name-link:hover { border-bottom-color: #078586; color: #078586; }
+
+    /* Pulsante nuovo campione inline */
+    .client-new-sample-btn {
+        font-size: 12px;
+        font-weight: 500;
+        color: #078586;
+        background: rgba(7,133,134,0.08);
+        border: 1px solid rgba(7,133,134,0.2);
+        border-radius: 5px;
+        padding: 3px 10px;
+        text-decoration: none;
+        margin-right: 10px;
+        transition: background 0.12s;
+    }
+
+    .client-new-sample-btn:hover { background: rgba(7,133,134,0.2); }
+
+    /* Toggle tipo cliente */
+    .client-type-toggle {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .client-type-option {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        cursor: pointer;
+        font-size: 13px;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .client-type-option input[type="radio"] {
+        accent-color: #078586;
+        width: 14px;
+        height: 14px;
+    }
+
+    /* Badge ID nell'header edit */
+    .client-id-badge {
+        font-size: 11px;
+        color: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 4px;
+        padding: 2px 8px;
+    }
+
+    /* Topbar actions */
+    .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Footer azioni cliente */
+    .client-show-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 16px;
+        border-top: 1px solid #E0E6F0;
+    }
+
+    /* Box unico dettaglio cliente */
+    .client-box {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .client-box-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding: 20px 24px;
+        border-bottom: 1px solid #E0E6F0;
+    }
+
+    .client-box-tabs {
+        display: flex;
+        gap: 2px;
+        padding: 0 20px;
+        border-bottom: 1px solid #E0E6F0;
+        background: #F4F6FB;
+    }
+
+}

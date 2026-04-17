@@ -1,0 +1,25 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Layout */
+@import './layout/shell.css';
+@import './layout/panel.css';
+@import './layout/topbar.css';
+
+/* Componenti */
+@import './components/buttons.css';
+@import './components/forms.css';
+@import './components/table.css';
+@import './components/badges.css';
+@import './components/alerts.css';
+@import './components/stats.css';
+@import './components/cards.css';
+
+/* Pagine */
+@import './pages/dashboard.css';
+@import './pages/samples.css';
+@import './pages/clients.css';
+@import './pages/staff.css';
+@import './pages/profile.css';
+

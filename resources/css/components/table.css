@@ -1,0 +1,229 @@
+/* Table — tabelle dati */
+@layer components {
+
+    .table-wrap {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* Celle vuote e righe vuote */
+    .table-empty-cell {
+        color: #B8C4D4;
+        font-size: 13px;
+    }
+
+    .table-empty-row {
+        text-align: center;
+        padding: 40px 16px;
+        color: #7A88A0;
+        font-size: 13px;
+    }
+
+    .table-toolbar {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        gap: 8px;
+        border-bottom: 1px solid #E0E6F0;
+        flex-wrap: wrap;
+    }
+
+    .table-toolbar-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #18243A;
+        flex: 1;
+        letter-spacing: -0.01em;
+    }
+
+    /* Filtri a pill */
+    .pill {
+        font-size: 11px;
+        padding: 4px 11px;
+        border-radius: 20px;
+        border: 1px solid #CDD4E2;
+        background: transparent;
+        color: #7A88A0;
+        cursor: pointer;
+        transition: all 0.1s;
+        white-space: nowrap;
+    }
+
+    .pill:hover {
+        background: #F4F6FB;
+        color: #18243A;
+    }
+
+    .pill.active {
+        background: rgba(7,133,134,0.1);
+        border-color: rgba(7,133,134,0.35);
+        color: #056465;
+        font-weight: 500;
+    }
+
+    /* Tabella */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+    }
+
+    .data-table th {
+        text-align: left;
+        padding: 9px 16px;
+        font-size: 10px;
+        font-weight: 500;
+        color: #9BAABF;
+        border-bottom: 1px solid #E0E6F0;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        background: #F4F6FB;
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 11px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid #EAEEF6;
+        color: #253248;
+        vertical-align: middle;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .data-table tbody tr:hover td {
+        background: #F4F6FB;
+        cursor: pointer;
+    }
+
+    /* Codice campione */
+    .sample-code {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 12px;
+        color: #078586;
+        background: rgba(7,133,134,0.10);
+        padding: 2px 6px;
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+
+    /* Nome cliente */
+    .client-name {
+        font-weight: 600;
+        font-size: 13px;
+        color: #18243A;
+    }
+
+    .client-type {
+        font-size: 11px;
+        color: #7A88A0;
+    }
+
+    /* Contatore file */
+    .file-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        color: #4A5A72;
+        background: #E8EEF6;
+        padding: 2px 7px;
+        border-radius: 4px;
+    }
+
+    /* Azione visibile al hover riga */
+    .row-action {
+        opacity: 0;
+        font-size: 11px;
+        color: #078586;
+        cursor: pointer;
+        transition: opacity 0.12s;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    .data-table tbody tr:hover .row-action {
+        opacity: 1;
+    }
+
+    /* Paginazione */
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-top: 1px solid #E0E6F0;
+        font-size: 12px;
+        color: #7A88A0;
+    }
+
+    .pagination-links {
+        display: flex;
+        gap: 4px;
+    }
+
+    .pagination-links a,
+    .pagination-links span {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        color: #4A5A72;
+        text-decoration: none;
+        border: 1px solid transparent;
+    }
+
+    .pagination-links a:hover {
+        background: #E8EEF6;
+        color: #18243A;
+    }
+
+    .pagination-links span.active {
+        background: rgba(7,133,134,0.1);
+        color: #056465;
+        border-color: rgba(7,133,134,0.35);
+        font-weight: 500;
+    }
+
+    /* Table Toolbar Searchbar */
+    .table-search {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+        display: flex;
+        align-items: center;
+    }
+
+    .table-search input {
+        width: 100%;
+        background: #F4F6FB;
+        border: 1px solid #CDD4E2;
+        border-radius: 20px;
+        padding: 8px 16px 8px 36px;
+        color: #18243A;
+        font-size: 13px;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .table-search input:focus {
+        background: #fff;
+        border-color: #078586;
+        box-shadow: 0 0 0 3px rgba(7, 133, 134, 0.1);
+    }
+
+    .table-search input::placeholder {
+        color: #7A88A0;
+    }
+
+    .table-search svg {
+        position: absolute;
+        left: 14px;
+        color: #7A88A0;
+        pointer-events: none;
+    }
+}

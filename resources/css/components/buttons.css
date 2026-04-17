@@ -1,0 +1,91 @@
+/* Buttons — bottoni riutilizzabili */
+@layer components {
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 7px 16px;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.12s, border-color 0.12s;
+        white-space: nowrap;
+        line-height: 1;
+    }
+
+    /* Primario */
+    .btn-primary {
+        background: #078586;
+        color: #fff;
+        border-color: #078586;
+    }
+
+    .btn-primary:hover {
+        background: #056465;
+        border-color: #056465;
+    }
+
+    /* Secondario */
+    .btn-secondary {
+        background: #fff;
+        color: #253248;
+        border-color: #CDD4E2;
+    }
+
+    .btn-secondary:hover {
+        background: #F4F6FB;
+    }
+
+    /* Scuro */
+    .btn-dark {
+        background: #18243A;
+        color: #fff;
+        border-color: #18243A;
+    }
+
+    .btn-dark:hover {
+        background: #0F1828;
+    }
+
+    /* Danger */
+    .btn-danger {
+        background: rgba(239,68,68,0.08);
+        color: #B91C1C;
+        border-color: rgba(239,68,68,0.25);
+    }
+
+    .btn-danger:hover {
+        background: rgba(239,68,68,0.2);
+        border-color: rgba(239,68,68,0.35);
+    }
+
+    /* Ghost */
+    .btn-ghost {
+        background: transparent;
+        color: #7A88A0;
+        border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+        background: #E0E6F0;
+        color: #253248;
+    }
+
+    /* Piccolo */
+    .btn-sm {
+        font-size: 12px;
+        padding: 5px 12px;
+    }
+
+    /* Icona senza testo */
+    .btn-icon {
+        padding: 6px;
+        width: 32px;
+        height: 32px;
+    }
+}

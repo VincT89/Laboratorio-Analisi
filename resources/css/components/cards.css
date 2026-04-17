@@ -1,0 +1,231 @@
+/* Cards — layout form e card generiche condivise tra tutte le pagine */
+@layer components {
+
+    /* Form card (create/edit campioni, clienti, staff) */
+    .form-card-wrap {
+        background: #fff;
+        border: 1px solid #D4DBE8;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 24px 0 0;
+    }
+
+    .form-card-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid #E0E6F0;
+    }
+
+    .form-card-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #18243A;
+    }
+
+    .form-card-sub {
+        font-size: 12px;
+        color: #7A88A0;
+        margin-top: 4px;
+    }
+
+    .form-card-body { padding: 24px; }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-top: 16px;
+        border-top: 1px solid #E0E6F0;
+        margin-top: 8px;
+    }
+
+    /* Archive wrap (campioni archiviati, clienti archiviati, lista clienti) */
+    .archive-wrap {
+        margin: 24px 0 0;
+    }
+
+    .archive-wrap .table-wrap {
+        box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+
+    .archive-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    .archive-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #18243A;
+        letter-spacing: -0.02em;
+    }
+
+    .archive-back {
+        font-size: 13px;
+        font-weight: 500;
+        color: #078586;
+        text-decoration: none;
+    }
+
+    .archive-back:hover { text-decoration: underline; }
+
+    /* Riga archiviata nella tabella */
+    .archived-row { opacity: .75; }
+
+    /* Pulsante ripristina */
+    .archive-action-view {
+        font-size: 12px;
+        color: #078586;
+        text-decoration: none;
+        margin-right: 12px;
+    }
+
+    .archive-action-view:hover { text-decoration: underline; }
+
+    .archive-action-restore {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        color: #166534;
+        transition: color 0.12s;
+    }
+
+    .archive-action-restore:hover { color: #4ADE80; }
+
+    /* Breadcrumb */
+    .breadcrumb-item {
+        font-size: 13px;
+        color: rgba(255,255,255,0.4);
+        text-decoration: none;
+    }
+
+    .breadcrumb-item:hover { color: #fff; }
+
+    .breadcrumb-item.active {
+        color: #fff;
+        font-weight: 500;
+    }
+
+    .breadcrumb-separator {
+        margin: 0 6px;
+        color: rgba(255,255,255,0.2);
+    }
+
+    /* Topbar actions (clienti show) */
+    .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Contenitore pagina — padding uniforme per form e pagine content */
+    .page-wrap {
+        padding: 8px 0;
+    }
+
+
+    /* Label row con link nuovo cliente */
+    .form-label-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 5px;
+    }
+
+    .new-client-btn {
+        font-size: 11px;
+        font-weight: 500;
+        color: #078586;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.12s;
+    }
+
+    .new-client-btn:hover { color: #93C5FD; }
+
+    /* Modale */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-box {
+        background: rgba(15,20,40,0.97);
+        backdrop-filter: blur(32px);
+        -webkit-backdrop-filter: blur(32px);
+        border: 1px solid rgba(255,255,255,0.12);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 24px 60px rgba(0,0,0,0.5);
+        border-radius: 12px;
+        width: 100%;
+        max-width: 760px;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        flex-shrink: 0;
+    }
+
+    .modal-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        color: rgba(255,255,255,0.4);
+        cursor: pointer;
+        font-size: 16px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        transition: color 0.12s, background 0.12s;
+    }
+
+    .modal-close:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.08);
+    }
+
+    .modal-body {
+        padding: 20px 24px;
+        overflow-y: auto;
+        flex: 1;
+        scrollbar-width: none;
+    }
+
+    .modal-body::-webkit-scrollbar { display: none; }
+
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 24px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        flex-shrink: 0;
+    }
+
+}

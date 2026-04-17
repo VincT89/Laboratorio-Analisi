@@ -1,0 +1,58 @@
+/* Staff — stili specifici pagina gestione utenti */
+@layer components {
+
+    /* Badge ruolo */
+    .staff-badge {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 8px;
+        border-radius: 20px;
+        border: 1px solid transparent;
+    }
+
+    .staff-badge--admin {
+        background: rgba(139,92,246,0.15);
+        color: #5B21B6;
+        border-color: rgba(139,92,246,0.25);
+    }
+
+    .staff-badge--staff {
+        background: #E8EEF6;
+        color: #4A5A72;
+        border-color: #CDD4E2;
+    }
+
+    /* Azioni riga */
+    .staff-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 14px;
+    }
+
+    .staff-action-edit {
+        font-size: 12px;
+        color: #078586;
+        text-decoration: none;
+    }
+
+    .staff-action-edit:hover { text-decoration: underline; }
+
+    .staff-action-delete {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        color: #B91C1C;
+        transition: color 0.12s;
+    }
+
+    .staff-action-delete:hover { color: #F87171; }
+
+    /* Form create/edit staff */
+    .staff-form-wrap {
+        margin-top: 24px;
+    }
+}
