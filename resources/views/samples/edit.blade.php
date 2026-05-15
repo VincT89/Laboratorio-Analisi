@@ -30,15 +30,47 @@
 
             <div class="form-group">
                 <label for="client_id" class="form-label required">Cliente</label>
-                <select name="client_id" id="client_id" class="form-control" required>
-                    <option value="">-- Seleziona un cliente --</option>
-                    @foreach($clients as $client)
-                        <option value="{{ $client->id }}" {{ (old('client_id', $sample->client_id) == $client->id) ? 'selected' : '' }}>
-                            {{ $client->company_name ?: $client->first_name . ' ' . $client->last_name }}
-                            {{ $client->tax_code ? '('.$client->tax_code.')' : '' }}
-                        </option>
-                    @endforeach
-                </select>
+                <div
+                    x-data="clientSearch({
+                        searchUrl: @js(route('clients.search')),
+                        initialId: @js(old('client_id', $sample->client_id)),
+                        initialText: @js(old('client_text', $sample->client ? (($sample->client->company_name ?: trim($sample->client->first_name . ' ' . $sample->client->last_name)) . ($sample->client->tax_code ? ' ('.$sample->client->tax_code.')' : '')) : ''))
+                    })"
+                    class="client-search"
+                    @click.away="open = false"
+                >
+                    <input type="hidden" name="client_id" id="client_id" x-model="selectedId" required>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Cerca cliente..."
+                        x-model="query"
+                        @input.debounce.250ms="searchClients"
+                        @focus="open = true"
+                        autocomplete="off"
+                    >
+
+                    <div x-show="open && results.length > 0" x-cloak class="client-search-results">
+                        <template x-for="client in results" :key="client.id">
+                            <button
+                                type="button"
+                                class="client-search-result"
+                                @click="selectClient(client)"
+                            >
+                                <span x-text="client.text"></span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <div x-show="open && query.length > 0 && !loading && results.length === 0" x-cloak class="client-search-empty">
+                        Nessun cliente trovato.
+                    </div>
+
+                    <div x-show="loading" x-cloak class="client-search-empty">
+                        Ricerca...
+                    </div>
+                </div>
                 @error('client_id') <span class="form-error">{{ $message }}</span> @enderror
             </div>
 
@@ -109,4 +141,104 @@
         </form>
     </div>
 </div>
+
+@push('styles')
+<style>
+.client-search {
+    position: relative;
+}
+.client-search-results {
+    position: absolute;
+    z-index: 30;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #D4DBE8;
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 8px 24px rgba(10,16,32,0.08);
+    overflow: hidden;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.client-search-result {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    background: #fff;
+    border: 0;
+    cursor: pointer;
+    font-size: 14px;
+    color: #18243A;
+    border-bottom: 1px solid #F4F6FB;
+}
+.client-search-result:last-child {
+    border-bottom: 0;
+}
+.client-search-result:hover {
+    background: #F4F6FB;
+}
+.client-search-empty {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: #7A88A0;
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+    function clientSearch({ searchUrl, initialId = '', initialText = '' }) {
+        return {
+            query: initialText,
+            selectedId: initialId,
+            results: [],
+            open: false,
+            loading: false,
+
+            async searchClients() {
+                this.selectedId = '';
+
+                const q = this.query.trim();
+
+                if (q.length < 1) {
+                    this.results = [];
+                    this.open = false;
+                    return;
+                }
+
+                this.loading = true;
+                this.open = true;
+
+                try {
+                    const response = await fetch(`${searchUrl}?q=${encodeURIComponent(q)}`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Errore ricerca clienti');
+                    }
+
+                    this.results = await response.json();
+                } catch (error) {
+                    console.error(error);
+                    this.results = [];
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            selectClient(client) {
+                this.selectedId = client.id;
+                this.query = client.text;
+                this.results = [];
+                this.open = false;
+            }
+        };
+    }
+</script>
+@endpush
 @endsection

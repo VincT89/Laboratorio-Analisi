@@ -96,13 +96,12 @@ class SampleController extends Controller
     {
         $this->authorize('update', $sample);
 
-        $clients = Client::active()->orderBy('company_name')->get();
         $sampleTypes = SampleType::where('is_active', true)
             ->orWhere('id', $sample->sample_type_id)
             ->orderBy('name')
             ->get();
 
-        return view('samples.edit', compact('sample', 'clients', 'sampleTypes'));
+        return view('samples.edit', compact('sample', 'sampleTypes'));
     }
 
     /**
