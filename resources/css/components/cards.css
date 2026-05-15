@@ -228,4 +228,37 @@
         flex-shrink: 0;
     }
 
+    /* Adattamento testo form per modale scura */
+    .modal-box .form-label {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .modal-box .form-label.required::after {
+        color: #F87171;
+    }
+
+    .modal-box .form-section-title {
+        color: rgba(255, 255, 255, 0.5);
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-box .client-type-option {
+        color: rgba(255, 255, 255, 0.85);
+    }
+
+    .modal-box .form-control {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+
+    .modal-box .form-control:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(7, 133, 134, 0.6);
+        box-shadow: 0 0 0 3px rgba(7, 133, 134, 0.2);
+    }
+
+    .modal-box .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
 }

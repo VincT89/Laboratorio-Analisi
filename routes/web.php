@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /*
     | Clienti
     */
+    Route::get('clients/search', [ClientController::class, 'search'])
+        ->name('clients.search');
     Route::resource('clients', ClientController::class);
     Route::patch('clients/{client}/archive', [ClientController::class, 'archive'])
         ->name('clients.archive');

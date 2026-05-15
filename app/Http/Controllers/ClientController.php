@@ -35,6 +35,47 @@ class ClientController extends Controller
     }
 
     /**
+     * Ricerca live AJAX per la selezione del cliente (es. in creazione campione)
+     */
+    public function search(Request $request)
+    {
+        $this->authorize('viewAny', Client::class);
+
+        $search = trim((string) $request->query('q', ''));
+
+        if ($search === '') {
+            return response()->json([]);
+        }
+
+        $clients = Client::active()
+            ->where(function ($query) use ($search) {
+                $query->where('company_name', 'like', "%{$search}%")
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('tax_code', 'like', "%{$search}%")
+                    ->orWhere('vat_number', 'like', "%{$search}%");
+            })
+            ->orderBy('company_name')
+            ->limit(15)
+            ->get()
+            ->map(function (Client $client) {
+                $name = $client->company_name ?: trim($client->first_name . ' ' . $client->last_name);
+
+                if ($client->tax_code) {
+                    $name .= ' (' . $client->tax_code . ')';
+                }
+
+                return [
+                    'id' => $client->id,
+                    'text' => $name,
+                ];
+            })
+            ->values();
+
+        return response()->json($clients);
+    }
+
+    /**
      * Form per la creazione di un nuovo cliente.
      */
     public function create()

@@ -50,10 +50,9 @@ class SampleController extends Controller
             ? Client::active()->findOrFail($request->client_id)
             : null;
 
-        $clients = Client::active()->orderBy('company_name')->get();
         $sampleTypes = SampleType::where('is_active', true)->orderBy('name')->get();
 
-        return view('samples.create', compact('clients', 'selectedClient', 'sampleTypes', 'mode'));
+        return view('samples.create', compact('selectedClient', 'sampleTypes', 'mode'));
     }
 
     public function store(StoreSampleRequest $request, \App\Actions\Samples\CreateSampleAction $createSample)
