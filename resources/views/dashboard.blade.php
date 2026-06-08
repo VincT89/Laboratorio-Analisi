@@ -228,6 +228,8 @@
                                     <span class="dash-badge dash-badge--amber">Prelevato</span>
                                 @elseif($row->sample->status === 'accepted')
                                     <span class="dash-badge dash-badge--blue">Accettato</span>
+                                @elseif($row->sample->status === 'rejected')
+                                    <span class="dash-badge" style="background: rgba(239, 68, 68, 0.1); color: #DC2626;">Rifiutato</span>
                                 @else
                                     <span class="dash-badge dash-badge--green">Completato</span>
                                 @endif

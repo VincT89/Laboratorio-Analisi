@@ -33,9 +33,14 @@ class ScopesTest extends TestCase
 
         $user = User::factory()->create();
 
+        $type = \App\Models\SampleType::factory()->create();
+
         $activeSample = Sample::create([
             'client_id' => $client->id,
-            'code' => 'L-1',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
+            'sample_type_id' => $type->id,
             'sample_type' => 'T',
             'collection_site' => 'S',
             'collected_by' => 'M',
@@ -46,7 +51,10 @@ class ScopesTest extends TestCase
 
         $archivedSample = Sample::create([
             'client_id' => $client->id,
-            'code' => 'L-2',
+            'code' => '0002/26',
+            'code_progressive' => 2,
+            'code_year' => 26,
+            'sample_type_id' => $type->id,
             'sample_type' => 'T',
             'collection_site' => 'S',
             'collected_by' => 'M',
@@ -58,10 +66,10 @@ class ScopesTest extends TestCase
 
         $activeSamples = Sample::active()->get();
         $this->assertCount(1, $activeSamples);
-        $this->assertEquals('L-1', $activeSamples->first()->code);
+        $this->assertEquals('0001/26', $activeSamples->first()->code);
 
         $archivedSamples = Sample::archived()->get();
         $this->assertCount(1, $archivedSamples);
-        $this->assertEquals('L-2', $archivedSamples->first()->code);
+        $this->assertEquals('0002/26', $archivedSamples->first()->code);
     }
 }

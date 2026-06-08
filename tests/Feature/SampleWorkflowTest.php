@@ -30,7 +30,9 @@ class SampleWorkflowTest extends TestCase
             'collection_site' => 'Site',
             'collected_by' => 'User',
             'collected_at' => now(),
-            'code' => 'LAB-2026-00001',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
             'status' => 'collected',
             'created_by' => $this->admin->id
         ]);
@@ -112,5 +114,26 @@ class SampleWorkflowTest extends TestCase
         
         $this->sample->refresh();
         $this->assertNull($this->sample->accepted_at); // Non deve essersi salvato
+    }
+
+    public function test_reject_transition_works()
+    {
+        $response = $this->actingAs($this->admin)->patch(route('samples.reject', $this->sample));
+        
+        $response->assertRedirect();
+        
+        $this->sample->refresh();
+        $this->assertEquals('rejected', $this->sample->status);
+    }
+
+    public function test_cannot_reject_completed_sample()
+    {
+        $staff = User::factory()->create();
+        $staff->assignRole('staff');
+
+        $this->sample->update(['status' => 'completed']);
+
+        $response = $this->actingAs($staff)->patch(route('samples.reject', $this->sample));
+        $response->assertStatus(403);
     }
 }

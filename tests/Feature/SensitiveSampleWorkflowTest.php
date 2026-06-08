@@ -67,7 +67,9 @@ class SensitiveSampleWorkflowTest extends TestCase
     public function test_staff_takes_403_on_show_and_edit_for_sensitive()
     {
         $sample = Sample::create([
-            'code' => 'TEST-001',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
             'client_id' => null,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',
@@ -84,7 +86,9 @@ class SensitiveSampleWorkflowTest extends TestCase
     public function test_admin_opens_incomplete_sensitive_without_crash()
     {
         $sample = Sample::create([
-            'code' => 'TEST-002',
+            'code' => '0002/26',
+            'code_progressive' => 2,
+            'code_year' => 26,
             'client_id' => null, // INCOMPLETE
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',
@@ -101,7 +105,9 @@ class SensitiveSampleWorkflowTest extends TestCase
     public function test_staff_upload_and_download_files_on_sensitive_are_blocked()
     {
         $sample = Sample::create([
-            'code' => 'TEST-003',
+            'code' => '0003/26',
+            'code_progressive' => 3,
+            'code_year' => 26,
             'client_id' => null,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',
@@ -140,7 +146,9 @@ class SensitiveSampleWorkflowTest extends TestCase
     public function test_admin_accept_and_complete_are_blocked_until_complete()
     {
         $sample = Sample::create([
-            'code' => 'TEST-004',
+            'code' => '0004/26',
+            'code_progressive' => 4,
+            'code_year' => 26,
             'client_id' => null, // INCOMPLETE
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',

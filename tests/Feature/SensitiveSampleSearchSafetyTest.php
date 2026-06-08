@@ -46,7 +46,9 @@ class SensitiveSampleSearchSafetyTest extends TestCase
     {
         // Creiamo un campione standard per questo cliente
         $standardSample = Sample::create([
-            'code' => 'LAB-2026-00001',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
             'client_id' => $this->client->id,
             'sample_type_id' => $this->standardType->id,
             'sample_type' => $this->standardType->name,
@@ -59,7 +61,9 @@ class SensitiveSampleSearchSafetyTest extends TestCase
 
         // Creiamo un campione sensibile, che è stato assegnato all'admin per questo cliente (quindi completato lato anagrafica)
         $sensitiveSample = Sample::create([
-            'code' => 'LAB-2026-00002',
+            'code' => '0002/26',
+            'code_progressive' => 2,
+            'code_year' => 26,
             'client_id' => $this->client->id,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => $this->sensitiveType->name,
@@ -74,15 +78,17 @@ class SensitiveSampleSearchSafetyTest extends TestCase
         $response = $this->actingAs($this->staff)->get(route('samples.index', ['search' => 'Levante']));
 
         $response->assertStatus(200);
-        $response->assertSee('LAB-2026-00001'); // Vede lo standard
-        $response->assertDontSee('LAB-2026-00002'); // NON vede il sensibile!
+        $response->assertSee('0001/26'); // Vede lo standard
+        $response->assertDontSee('0002/26'); // NON vede il sensibile!
     }
 
     public function test_staff_search_by_code_finds_sensitive_sample_but_it_is_masked()
     {
         // Un campione sensibile che lo staff ha creato o sta cercando
         $sensitiveSample = Sample::create([
-            'code' => 'LAB-2026-00003',
+            'code' => '0003/26',
+            'code_progressive' => 3,
+            'code_year' => 26,
             'client_id' => $this->client->id, // assegnato per edge case
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => $this->sensitiveType->name,
@@ -94,10 +100,10 @@ class SensitiveSampleSearchSafetyTest extends TestCase
         ]);
 
         // Lo staff cerca esplicitamente il codice
-        $response = $this->actingAs($this->staff)->get(route('samples.index', ['search' => 'LAB-2026-00003']));
+        $response = $this->actingAs($this->staff)->get(route('samples.index', ['search' => '0003/26']));
 
         $response->assertStatus(200);
-        $response->assertSee('LAB-2026-00003');
+        $response->assertSee('0003/26');
         // Essendo sensibile e non admin, l'anagrafica cliente deve essere mascherata
         $response->assertSee('******', false);
         $response->assertDontSee($this->client->company_name); // Non vede il vero nome del cliente
@@ -106,7 +112,9 @@ class SensitiveSampleSearchSafetyTest extends TestCase
     public function test_admin_search_finds_standard_and_sensitive_samples_for_client()
     {
         $standardSample = Sample::create([
-            'code' => 'LAB-2026-00010',
+            'code' => '0010/26',
+            'code_progressive' => 10,
+            'code_year' => 26,
             'client_id' => $this->client->id,
             'sample_type_id' => $this->standardType->id,
             'sample_type' => $this->standardType->name,
@@ -118,7 +126,9 @@ class SensitiveSampleSearchSafetyTest extends TestCase
         ]);
 
         $sensitiveSample = Sample::create([
-            'code' => 'LAB-2026-00011',
+            'code' => '0011/26',
+            'code_progressive' => 11,
+            'code_year' => 26,
             'client_id' => $this->client->id,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => $this->sensitiveType->name,
@@ -133,8 +143,8 @@ class SensitiveSampleSearchSafetyTest extends TestCase
         $response = $this->actingAs($this->admin)->get(route('samples.index', ['search' => 'Levante']));
 
         $response->assertStatus(200);
-        $response->assertSee('LAB-2026-00010'); // Vede lo standard
-        $response->assertSee('LAB-2026-00011'); // Vede anche il sensibile
+        $response->assertSee('0010/26'); // Vede lo standard
+        $response->assertSee('0011/26'); // Vede anche il sensibile
         $response->assertSee($this->client->company_name); // Il nome del cliente non è mascherato per lui
     }
 }

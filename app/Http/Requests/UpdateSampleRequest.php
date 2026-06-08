@@ -15,6 +15,13 @@ class UpdateSampleRequest extends FormRequest
         return $this->user()->can('update', $this->route('sample'));
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (!$this->user()->isAdmin() && $this->has('code_progressive')) {
+            $this->request->remove('code_progressive');
+        }
+    }
+
     public function rules(): array
     {
         return [
@@ -31,9 +38,22 @@ class UpdateSampleRequest extends FormRequest
                     }
                 }
             ],
-            'collection_site' => ['required', 'string', 'max:255'],
+            'collection_site' => ['nullable', 'string', 'max:255'],
             'collected_by'    => ['required', 'string', 'max:255'],
             'notes'           => ['nullable', 'string'],
+            'lab_archived_by_name' => ['nullable', 'string', 'max:255'],
+            'container_type_id' => ['nullable', 'exists:container_types,id'],
+            'conservation_status' => ['nullable', 'string', 'max:255'],
+            'sample_quantity' => ['nullable', 'string', 'max:255'],
+            'code_progressive' => [
+                'nullable', 
+                'integer', 
+                'min:1', 
+                'max:9999',
+                \Illuminate\Validation\Rule::unique('samples')->where(function ($query) {
+                    return $query->where('code_year', $this->route('sample')->code_year);
+                })->ignore($this->route('sample')->id)
+            ],
         ];
     }
 
@@ -45,8 +65,8 @@ class UpdateSampleRequest extends FormRequest
             'collected_at.required'       => 'La data di prelievo è obbligatoria.',
             'collected_at.date'           => 'La data di prelievo non è valida.',
             'sample_type_id.required'     => 'Il tipo campione è obbligatorio.',
-            'collection_site.required'    => 'Il luogo di prelievo è obbligatorio.',
             'collected_by.required'       => 'Il nome del prelevatore è obbligatorio.',
+            'code_progressive.unique'     => 'Il progressivo specificato è già in uso per l\'anno del campione in oggetto.',
         ];
     }
 }

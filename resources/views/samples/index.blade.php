@@ -68,6 +68,8 @@
                class="pill {{ request('status') === 'accepted' ? 'active' : '' }}">Accettati</a>
             <a href="{{ route('samples.index', array_merge(request()->except('status', 'page'), ['status' => 'completed'])) }}"
                class="pill {{ request('status') === 'completed' ? 'active' : '' }}">Completati</a>
+            <a href="{{ route('samples.index', array_merge(request()->except('status', 'page'), ['status' => 'rejected'])) }}"
+               class="pill {{ request('status') === 'rejected' ? 'active' : '' }}">Rifiutati</a>
             @if(\Illuminate\Support\Facades\Auth::user()->isAdmin())
                 <a href="{{ route('samples.index', array_merge(request()->except('status', 'page'), ['status' => 'incomplete'])) }}"
                    class="pill {{ request('status') === 'incomplete' ? 'active' : '' }}">Da completare (Sensibili)</a>
@@ -116,6 +118,8 @@
                                     <span class="badge badge-collected"><span class="badge-dot"></span>Prelevato</span>
                                 @elseif($row->sample->status === 'accepted')
                                     <span class="badge badge-accepted"><span class="badge-dot"></span>Accettato</span>
+                                @elseif($row->sample->status === 'rejected')
+                                    <span class="badge badge-rejected"><span class="badge-dot"></span>Rifiutato</span>
                                 @else
                                     <span class="badge badge-completed"><span class="badge-dot"></span>Completato</span>
                                 @endif

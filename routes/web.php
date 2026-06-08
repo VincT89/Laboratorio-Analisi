@@ -53,6 +53,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('sample-types/{sampleType}/deactivate', [\App\Http\Controllers\SampleTypeController::class, 'deactivate'])->name('sample-types.deactivate');
 
     /*
+    | Tipi di Contenitore (Backoffice Lab)
+    */
+    Route::resource('container-types', \App\Http\Controllers\ContainerTypeController::class)->except(['show', 'destroy']);
+    Route::patch('container-types/{containerType}/activate', [\App\Http\Controllers\ContainerTypeController::class, 'activate'])->name('container-types.activate');
+    Route::patch('container-types/{containerType}/deactivate', [\App\Http\Controllers\ContainerTypeController::class, 'deactivate'])->name('container-types.deactivate');
+
+    /*
     | Clienti
     */
     Route::get('clients/search', [ClientController::class, 'search'])
@@ -73,6 +80,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('samples.accept');
     Route::patch('samples/{sample}/complete', [SampleController::class, 'complete'])
         ->name('samples.complete');
+    Route::patch('samples/{sample}/reject', [SampleController::class, 'reject'])
+        ->name('samples.reject');
     Route::patch('samples/{sample}/archive', [SampleController::class, 'archive'])
         ->name('samples.archive');
     Route::patch('samples/{sample}/restore', [SampleController::class, 'restore'])

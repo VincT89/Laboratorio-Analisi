@@ -30,13 +30,15 @@ class SampleRestoreTest extends TestCase
             'client_id' => $client->id,
             'archived' => true,
             'archived_at' => now(),
-            'code' => 'TEST-S-01',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
+            'sample_type_id' => \App\Models\SampleType::factory()->create()->id,
             'sample_type' => 'X',
             'collection_site' => 'Y',
             'collected_by' => 'Z',
             'collected_at' => now(),
             'status' => 'collected',
-            'built_in' => false,
             'created_by' => $this->admin->id
         ]);
 
@@ -66,13 +68,15 @@ class SampleRestoreTest extends TestCase
         $sample = Sample::create([
             'client_id' => $client->id,
             'archived' => false,
-            'code' => 'TEST-S-02',
+            'code' => '0002/26',
+            'code_progressive' => 2,
+            'code_year' => 26,
+            'sample_type_id' => \App\Models\SampleType::factory()->create()->id,
             'sample_type' => 'X',
             'collection_site' => 'Y',
             'collected_by' => 'Z',
             'collected_at' => now(),
             'status' => 'collected',
-            'built_in' => false,
             'created_by' => $this->admin->id
         ]);
 

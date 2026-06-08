@@ -147,6 +147,10 @@ class SamplesSeeder extends Seeder
                 'collection_site' => $sample->collection_site,
                 'collected_by' => $sample->collected_by,
                 'notes' => null,
+                'container_type_id' => \App\Models\ContainerType::inRandomOrder()->first()?->id,
+                'conservation_status' => fake()->randomElement(['A temperatura ambiente', 'Refrigerato', 'Congelato', 'Al riparo dalla luce']),
+                'sample_quantity' => fake()->randomElement(['100 ml', '500 ml', '1 L', '250 g', '2 tamponi']),
+                'lab_archived_by_name' => fake()->randomElement(['Dr. Rossi', 'Tec. Bianchi', 'Amministratore Lab']),
             ], $admin->id);
 
             $acceptAction->execute($sample->fresh(), $admin->id);
@@ -189,6 +193,10 @@ class SamplesSeeder extends Seeder
                     'collection_site' => fake()->randomElement($sites),
                     'collected_by' => fake()->randomElement($collectors),
                     'notes' => fake()->randomElement($notes),
+                    'container_type_id' => \App\Models\ContainerType::inRandomOrder()->first()?->id,
+                    'conservation_status' => fake()->randomElement(['A temperatura ambiente', 'Refrigerato', 'Congelato', 'Al riparo dalla luce']),
+                    'sample_quantity' => fake()->randomElement(['100 ml', '500 ml', '1 L', '250 g', '2 tamponi']),
+                    'lab_archived_by_name' => fake()->randomElement(['Dr. Rossi', 'Tec. Bianchi', 'Amministratore Lab']),
                 ], $staff->id)
             );
         }

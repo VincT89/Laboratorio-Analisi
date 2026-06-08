@@ -39,7 +39,9 @@ class DashboardSensitiveAdminTest extends TestCase
     {
         // 1 incomplete sensitive
         Sample::create([
-            'code' => 'SENS-001',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
             'client_id' => null,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',
@@ -59,7 +61,9 @@ class DashboardSensitiveAdminTest extends TestCase
         ]);
         
         Sample::create([
-            'code' => 'SENS-002',
+            'code' => '0002/26',
+            'code_progressive' => 2,
+            'code_year' => 26,
             'client_id' => $client->id,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',
@@ -77,14 +81,16 @@ class DashboardSensitiveAdminTest extends TestCase
         $response->assertSee('Analisi Sensibili da Completare');
         
         $response->assertViewHas('sensitiveIncompleteSamples', function ($samples) {
-            return $samples->contains('code', 'SENS-001') && !$samples->contains('code', 'SENS-002');
+            return $samples->contains('code', '0001/26') && !$samples->contains('code', '0002/26');
         });
     }
 
     public function test_staff_does_not_see_sensitive_incomplete_widget()
     {
         Sample::create([
-            'code' => 'SENS-001',
+            'code' => '0003/26',
+            'code_progressive' => 3,
+            'code_year' => 26,
             'client_id' => null,
             'sample_type_id' => $this->sensitiveType->id,
             'sample_type' => 'Legacy Type',

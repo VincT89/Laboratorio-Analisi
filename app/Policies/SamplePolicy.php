@@ -85,6 +85,16 @@ class SamplePolicy
     }
 
     /**
+     * Lo staff può rifiutare un campione.
+     */
+    public function reject(User $user, Sample $sample): bool
+    {
+        return $user->hasPermissionTo('edit samples')
+            && !$sample->archived
+            && !in_array($sample->status, ['completed', 'rejected'], true);
+    }
+
+    /**
      * Solo Admin può archiviare il campione (rimozione logica su file in cascata).
      */
     public function archive(User $user, Sample $sample): bool

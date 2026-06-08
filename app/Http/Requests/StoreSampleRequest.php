@@ -11,6 +11,13 @@ class StoreSampleRequest extends FormRequest
         return $this->user()->can('create', \App\Models\Sample::class);
     }
 
+    protected function prepareForValidation(): void
+    {
+        if (!$this->user()->isAdmin() && $this->has('code_progressive')) {
+            $this->request->remove('code_progressive');
+        }
+    }
+
     public function rules(): array
     {
         $rules = [
@@ -25,7 +32,7 @@ class StoreSampleRequest extends FormRequest
                     ->where('is_active', 1)
                     ->where('is_sensitive', 1)
             ];
-            $rules['collection_site'] = ['required', 'string', 'max:255'];
+            $rules['collection_site'] = ['nullable', 'string', 'max:255'];
             $rules['collected_by']    = ['required', 'string', 'max:255'];
         } else {
             $rules['client_id']       = ['required', 'exists:clients,id'];
@@ -35,11 +42,25 @@ class StoreSampleRequest extends FormRequest
                     ->where('is_active', 1)
                     ->where('is_sensitive', 0)
             ];
-            $rules['collection_site'] = ['required', 'string', 'max:255'];
+            $rules['collection_site'] = ['nullable', 'string', 'max:255'];
             $rules['collected_by']    = ['required', 'string', 'max:255'];
             $rules['notes']           = ['nullable', 'string'];
         }
 
+        $rules['lab_archived_by_name'] = ['nullable', 'string', 'max:255'];
+        $rules['container_type_id']    = ['nullable', 'exists:container_types,id'];
+        $rules['conservation_status']  = ['nullable', 'string', 'max:255'];
+        $rules['sample_quantity']      = ['nullable', 'string', 'max:255'];
+        $year = (int) now()->format('y');
+        $rules['code_progressive'] = [
+            'nullable', 
+            'integer', 
+            'min:1', 
+            'max:9999',
+            \Illuminate\Validation\Rule::unique('samples')->where(function ($query) use ($year) {
+                return $query->where('code_year', $year);
+            })
+        ];
         return $rules;
     }
 
@@ -52,17 +73,17 @@ class StoreSampleRequest extends FormRequest
             'collected_at.date'        => 'La data di prelievo non è valida.',
             'sample_type_id.required'  => 'Il tipo campione è obbligatorio.',
             'sample_type_id.exists'    => 'Il tipo campione selezionato non è valido o incompatibile con la modalità scelta.',
-            'collection_site.required' => 'Il luogo di prelievo è obbligatorio.',
             'collected_by.required'    => 'Il nome del prelevatore è obbligatorio.',
         ];
 
         if ($this->input('creation_mode') === 'sensitive') {
-            $messages['collection_site.required'] = 'Il luogo di prelievo è richiesto nella preregistrazione tecnica.';
             $messages['collected_by.required']    = 'Il nome del prelevatore è richiesto nella preregistrazione tecnica.';
         } else {
             $messages['client_id.required']       = 'Il cliente è obbligatorio nel flusso standard.';
             $messages['client_id.exists']         = 'Il cliente selezionato non esiste.';
         }
+
+        $messages['code_progressive.unique'] = 'Il progressivo specificato è già in uso per l\'anno in corso.';
 
         return $messages;
     }

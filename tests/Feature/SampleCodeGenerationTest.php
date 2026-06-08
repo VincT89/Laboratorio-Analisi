@@ -44,7 +44,6 @@ class SampleCodeGenerationTest extends TestCase
             'client_id' => $client->id,
             'collected_at' => now()->format('Y-m-d'),
             'sample_type_id' => $type->id,
-            'collection_site' => 'Site A',
             'collected_by' => 'User A'
         ];
 
@@ -52,22 +51,22 @@ class SampleCodeGenerationTest extends TestCase
         $this->actingAs($admin)->post(route('samples.store'), $sampleData);
         $sample1 = Sample::latest('id')->first();
         
-        $year = now()->year;
-        $this->assertEquals("LAB-{$year}-00001", $sample1->code);
+        $year = now()->format('y');
+        $this->assertEquals("0001/{$year}", $sample1->code);
 
         // Creiamo il secondo campione
         $this->actingAs($admin)->post(route('samples.store'), $sampleData);
         $sample2 = Sample::latest('id')->first();
         
-        $this->assertEquals("LAB-{$year}-00002", $sample2->code);
+        $this->assertEquals("0002/{$year}", $sample2->code);
         
         // Eliminiamo HARD il primo campione
         $sample1->delete();
         
-        // Creiamo il terzo campione. Dovrebbe essere 00003, non 00002!
+        // Creiamo il terzo campione. Dovrebbe essere 0003, non 0002!
         $this->actingAs($admin)->post(route('samples.store'), $sampleData);
         $sample3 = Sample::latest('id')->first();
         
-        $this->assertEquals("LAB-{$year}-00003", $sample3->code, "Il sistema è vulnerabile a collisioni dopo hard delete!");
+        $this->assertEquals("0003/{$year}", $sample3->code, "Il sistema è vulnerabile a collisioni dopo hard delete!");
     }
 }

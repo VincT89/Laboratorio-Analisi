@@ -35,6 +35,12 @@ class Sample extends Model
         'archived_by',
         'created_by',
         'updated_by',
+        'lab_archived_by_name',
+        'container_type_id',
+        'conservation_status',
+        'sample_quantity',
+        'code_progressive',
+        'code_year',
     ];
 
     /**
@@ -73,6 +79,14 @@ class Sample extends Model
     public function sampleType(): BelongsTo
     {
         return $this->belongsTo(SampleType::class);
+    }
+
+    /**
+     * Il campione appartiene a un ContainerType.
+     */
+    public function containerType(): BelongsTo
+    {
+        return $this->belongsTo(ContainerType::class);
     }
 
     /**
@@ -143,6 +157,11 @@ class Sample extends Model
         return !$this->archived && 
                $this->status === 'accepted' && 
                !$this->isSensitiveIncomplete();
+    }
+
+    public function canBeRejected(): bool
+    {
+        return !$this->archived && $this->status !== 'completed' && $this->status !== 'rejected';
     }
 
     /**

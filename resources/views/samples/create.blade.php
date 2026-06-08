@@ -130,6 +130,14 @@
                         </div>
                         @error('client_id') <span class="form-error">{{ $message }}</span> @enderror
                     </div>
+                    @if(auth()->user()->isAdmin())
+                    <div class="form-group">
+                        <label for="code_progressive" class="form-label">N. Campione (Solo Admin)</label>
+                        <input type="number" name="code_progressive" id="code_progressive" class="form-control" min="1" max="9999" value="{{ old('code_progressive') }}" style="max-width: 200px;">
+                        <small style="color: #7A88A0; font-size: 13px; display: block; margin-top: 4px;">Lascia vuoto per assegnazione automatica. L'anno verrà aggiunto automaticamente.</small>
+                        @error('code_progressive') <span class="form-error">{{ $message }}</span> @enderror
+                    </div>
+                    @endif
                     @endif
 
                     <div class="form-grid-2">
@@ -157,9 +165,9 @@
 
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label for="collection_site" class="form-label required">Punto di Prelievo</label>
+                            <label for="collection_site" class="form-label">Punto di Prelievo</label>
                             <input type="text" name="collection_site" id="collection_site" class="form-control"
-                                value="{{ old('collection_site') }}" placeholder="Luogo o reparto..." required>
+                                value="{{ old('collection_site') }}" placeholder="Luogo o reparto...">
                             @error('collection_site') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
                         <div class="form-group">
@@ -167,6 +175,39 @@
                             <input type="text" name="collected_by" id="collected_by" class="form-control"
                                 value="{{ old('collected_by') }}" placeholder="Nome di chi ha eseguito il prelievo" required>
                             @error('collected_by') <span class="form-error">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="lab_archived_by_name" class="form-label">Nominativo di chi archivia in lab.</label>
+                            <input type="text" name="lab_archived_by_name" id="lab_archived_by_name" class="form-control" value="{{ old('lab_archived_by_name') }}">
+                            @error('lab_archived_by_name') <span class="form-error">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="container_type_id" class="form-label">Tipologia Contenitore</label>
+                            <select name="container_type_id" id="container_type_id" class="form-control">
+                                <option value="">-- Seleziona --</option>
+                                @foreach($containerTypes as $containerType)
+                                    <option value="{{ $containerType->id }}" {{ old('container_type_id') == $containerType->id ? 'selected' : '' }}>
+                                        {{ $containerType->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('container_type_id') <span class="form-error">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+
+                    <div class="form-grid-2">
+                        <div class="form-group">
+                            <label for="conservation_status" class="form-label">Stato di conservazione campione</label>
+                            <input type="text" name="conservation_status" id="conservation_status" class="form-control" value="{{ old('conservation_status') }}">
+                            @error('conservation_status') <span class="form-error">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="form-group">
+                            <label for="sample_quantity" class="form-label">Quantità campione</label>
+                            <input type="text" name="sample_quantity" id="sample_quantity" class="form-control" value="{{ old('sample_quantity') }}">
+                            @error('sample_quantity') <span class="form-error">{{ $message }}</span> @enderror
                         </div>
                     </div>
 

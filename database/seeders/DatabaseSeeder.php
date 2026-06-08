@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             UsersSeeder::class,
             SampleTypesSeeder::class,
+            ContainerTypesSeeder::class,
             ClientsSeeder::class,
             SamplesSeeder::class,
         ]);

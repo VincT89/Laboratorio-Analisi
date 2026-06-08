@@ -4,33 +4,48 @@ namespace App\Actions\Samples;
 
 use App\Models\Sample;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class GenerateSampleCodeAction
 {
     /**
      * Genera un codice univoco per il campione.
-     * Formato: LAB-YYYY-XXXXX (es. LAB-2026-00001)
+     * Formato: XXXX/YY (es. 0001/26)
+     * Ritorna un array con: code, progressive, year.
      */
-    public function execute(): string
+    public function execute(?int $forcedProgressive = null): array
     {
-        return DB::transaction(function () {
-            $year   = now()->year;
-            $prefix = "LAB-{$year}-";
+        return DB::transaction(function () use ($forcedProgressive) {
+            $yearStr = now()->format('y');
+            $year = (int) $yearStr;
 
-            $lastCode = Sample::where('code', 'like', "{$prefix}%")
-                ->lockForUpdate()
-                ->orderByDesc('code')
-                ->value('code');
+            if ($forcedProgressive !== null) {
+                // Se forzato, verifichiamo che non esista già
+                $exists = Sample::where('code_year', $year)
+                    ->where('code_progressive', $forcedProgressive)
+                    ->exists();
 
-            $lastSeq = 0;
+                if ($exists) {
+                    throw new Exception("Il progressivo {$forcedProgressive} è già in uso per l'anno {$yearStr}.");
+                }
 
-            if ($lastCode && preg_match('/^LAB-\d{4}-(\d{5})$/', $lastCode, $matches)) {
-                $lastSeq = (int) $matches[1];
+                $nextSeq = $forcedProgressive;
+            } else {
+                $lastSeq = Sample::where('code_year', $year)
+                    ->lockForUpdate()
+                    ->max('code_progressive');
+
+                $nextSeq = ($lastSeq ?? 0) + 1;
             }
 
-            $seq = str_pad($lastSeq + 1, 5, '0', STR_PAD_LEFT);
+            $seqStr = str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+            $code = "{$seqStr}/{$yearStr}";
 
-            return "{$prefix}{$seq}";
+            return [
+                'code' => $code,
+                'progressive' => $nextSeq,
+                'year' => $year,
+            ];
         });
     }
 }

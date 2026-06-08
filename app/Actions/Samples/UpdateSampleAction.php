@@ -24,6 +24,24 @@ class UpdateSampleAction
         
         $data['sample_type'] = $sampleType->name; // Fallback text column
 
+        if (isset($data['code_progressive']) && $data['code_progressive'] != $sample->code_progressive) {
+            $user = \App\Models\User::find($userId);
+            if ($user && $user->hasPermissionTo('edit samples')) { // Or whatever the admin check is. If they can edit samples, maybe they can't change code unless admin. The prompt said "solo admin". Let's use isAdmin()
+                if ($user->isAdmin()) {
+                    $year = $sample->code_year;
+                    $progressive = $data['code_progressive'];
+
+                    $seqStr = str_pad($progressive, 4, '0', STR_PAD_LEFT);
+                    $yearStr = str_pad($year, 2, '0', STR_PAD_LEFT);
+                    $data['code'] = "{$seqStr}/{$yearStr}";
+                } else {
+                    unset($data['code_progressive']);
+                }
+            } else {
+                unset($data['code_progressive']);
+            }
+        }
+
         $sample->update($data);
 
         return $sample;

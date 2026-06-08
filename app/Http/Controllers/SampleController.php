@@ -51,8 +51,9 @@ class SampleController extends Controller
             : null;
 
         $sampleTypes = SampleType::where('is_active', true)->orderBy('name')->get();
+        $containerTypes = \App\Models\ContainerType::where('is_active', true)->orderBy('name')->get();
 
-        return view('samples.create', compact('selectedClient', 'sampleTypes', 'mode'));
+        return view('samples.create', compact('selectedClient', 'sampleTypes', 'containerTypes', 'mode'));
     }
 
     public function store(StoreSampleRequest $request, \App\Actions\Samples\CreateSampleAction $createSample)
@@ -79,6 +80,7 @@ class SampleController extends Controller
 
         $sample->load([
             'client',
+            'containerType',
             'files'     => fn($q) => $q->active()->orderByDesc('created_at'),
             'createdBy',
             'updatedBy',
@@ -101,7 +103,12 @@ class SampleController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('samples.edit', compact('sample', 'sampleTypes'));
+        $containerTypes = \App\Models\ContainerType::where('is_active', true)
+            ->orWhere('id', $sample->container_type_id)
+            ->orderBy('name')
+            ->get();
+
+        return view('samples.edit', compact('sample', 'sampleTypes', 'containerTypes'));
     }
 
     /**
@@ -142,6 +149,20 @@ class SampleController extends Controller
         return redirect()
             ->route('samples.show', $sample)
             ->with('success', 'Campione completato correttamente.');
+    }
+
+    /**
+     * Rifiuta un campione.
+     */
+    public function reject(Sample $sample, \App\Actions\Samples\Workflow\RejectSampleAction $action)
+    {
+        $this->authorize('reject', $sample);
+
+        $action->execute($sample, Auth::id());
+
+        return redirect()
+            ->route('samples.show', $sample)
+            ->with('success', 'Campione rifiutato correttamente.');
     }
 
     /**

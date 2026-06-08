@@ -20,7 +20,11 @@ class CreateSampleAction
     {
         return DB::transaction(function () use ($data, $userId) {
             $data['created_by'] = $userId;
-            $data['code'] = $this->generateCodeAction->execute();
+            
+            $generated = $this->generateCodeAction->execute($data['code_progressive'] ?? null);
+            $data['code'] = $generated['code'];
+            $data['code_progressive'] = $generated['progressive'];
+            $data['code_year'] = $generated['year'];
 
             $sampleType = SampleType::findOrFail($data['sample_type_id']);
             $data['sample_type'] = $sampleType->name; // Fallback text column

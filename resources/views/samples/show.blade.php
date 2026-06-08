@@ -30,10 +30,11 @@
             <span class="badge
                 @if($sample->status === 'completed') badge-completed
                 @elseif($sample->status === 'accepted') badge-accepted
+                @elseif($sample->status === 'rejected') badge-rejected
                 @else badge-collected
                 @endif">
                 <span class="badge-dot"></span>
-                {{ $sample->status === 'collected' ? 'Prelevato' : ($sample->status === 'accepted' ? 'Accettato' : 'Completato') }}
+                {{ $sample->status === 'collected' ? 'Prelevato' : ($sample->status === 'accepted' ? 'Accettato' : ($sample->status === 'rejected' ? 'Rifiutato' : 'Completato')) }}
             </span>
             <p class="sample-header-date">Creato il: {{ $sample->created_at->format('d/m/Y H:i') }}</p>
         </div>
@@ -84,6 +85,22 @@
                     <dd class="sample-dl-value">{{ $sample->collected_by ?? '—' }}</dd>
                 </div>
                 <div class="sample-dl-item">
+                    <dt class="sample-dl-label">Nom. archiviazione lab</dt>
+                    <dd class="sample-dl-value">{{ $sample->lab_archived_by_name ?? '—' }}</dd>
+                </div>
+                <div class="sample-dl-item">
+                    <dt class="sample-dl-label">Tipologia Contenitore</dt>
+                    <dd class="sample-dl-value">{{ $sample->containerType ? $sample->containerType->name : '—' }}</dd>
+                </div>
+                <div class="sample-dl-item">
+                    <dt class="sample-dl-label">Stato conservazione</dt>
+                    <dd class="sample-dl-value">{{ $sample->conservation_status ?? '—' }}</dd>
+                </div>
+                <div class="sample-dl-item">
+                    <dt class="sample-dl-label">Quantità campione</dt>
+                    <dd class="sample-dl-value">{{ $sample->sample_quantity ?? '—' }}</dd>
+                </div>
+                <div class="sample-dl-item">
                     <dt class="sample-dl-label">Accettato in Laboratorio</dt>
                     <dd class="sample-dl-value">
                         {{ $sample->accepted_at ? \Carbon\Carbon::parse($sample->accepted_at)->format('d/m/Y') : 'In attesa' }}
@@ -107,6 +124,16 @@
                         <button type="submit" class="btn btn-secondary btn-sm"
                             onclick="confirmAction(event, 'Confermi di marcare il campione come accettato in laboratorio?')">
                             Accetta in Laboratorio
+                        </button>
+                    </form>
+                @endcan
+                @can('reject', $sample)
+                    <form action="{{ route('samples.reject', $sample) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="confirmAction(event, 'Confermi di marcare il campione come rifiutato?')">
+                            Rifiuta
                         </button>
                     </form>
                 @endcan
@@ -247,6 +274,7 @@
                                 'collected' => 'Prelevato',
                                 'accepted'  => 'Accettato',
                                 'completed' => 'Completato',
+                                'rejected'  => 'Rifiutato',
                             ];
                             $desc = $activity->description;
                             if ($desc === 'created') {

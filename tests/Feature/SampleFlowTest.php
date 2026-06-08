@@ -106,7 +106,9 @@ class SampleFlowTest extends TestCase
         
         $sample = Sample::create([
             'client_id' => $client->id,
-            'code' => 'LAB-2026-00001',
+            'code' => '0001/26',
+            'code_progressive' => 1,
+            'code_year' => 26,
             'sample_type_id' => \App\Models\SampleType::factory()->create()->id,
             'sample_type' => 'Terra',
             'collection_site' => 'Sito A',
@@ -136,7 +138,9 @@ class SampleFlowTest extends TestCase
         
         $sample = Sample::create([
             'client_id' => $client->id,
-            'code' => 'LAB-2026-00002',
+            'code' => '0002/26',
+            'code_progressive' => 2,
+            'code_year' => 26,
             'sample_type_id' => $type->id,
             'sample_type' => 'Aria',
             'collection_site' => 'Sito B',

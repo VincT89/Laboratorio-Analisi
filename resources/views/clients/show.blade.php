@@ -96,6 +96,8 @@
                                         <span class="badge badge-collected"><span class="badge-dot"></span>Prelevato</span>
                                     @elseif($sample->status === 'accepted')
                                         <span class="badge badge-accepted"><span class="badge-dot"></span>Accettato</span>
+                                    @elseif($sample->status === 'rejected')
+                                        <span class="badge badge-rejected"><span class="badge-dot"></span>Rifiutato</span>
                                     @else
                                         <span class="badge badge-completed"><span class="badge-dot"></span>Completato</span>
                                     @endif
