@@ -81,7 +81,7 @@
                 <tr>
                     <th>Codice</th>
                     <th>Cliente</th>
-                    <th>Tipo campione</th>
+                    <th>Tipologia di campione</th>
                     <th>Data prelievo</th>
                     <th>Stato</th>
                     <th>File</th>

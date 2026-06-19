@@ -60,6 +60,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('container-types/{containerType}/deactivate', [\App\Http\Controllers\ContainerTypeController::class, 'deactivate'])->name('container-types.deactivate');
 
     /*
+    | Unità di Misura (Backoffice Lab)
+    */
+    Route::resource('measurement-units', \App\Http\Controllers\MeasurementUnitController::class)->except(['show', 'destroy']);
+    Route::patch('measurement-units/{measurementUnit}/activate', [\App\Http\Controllers\MeasurementUnitController::class, 'activate'])->name('measurement-units.activate');
+    Route::patch('measurement-units/{measurementUnit}/deactivate', [\App\Http\Controllers\MeasurementUnitController::class, 'deactivate'])->name('measurement-units.deactivate');
+
+    /*
+    | Stati di Conservazione (Backoffice Lab)
+    */
+    Route::resource('conservation-statuses', \App\Http\Controllers\ConservationStatusController::class)->except(['show', 'destroy']);
+    Route::patch('conservation-statuses/{conservationStatus}/activate', [\App\Http\Controllers\ConservationStatusController::class, 'activate'])->name('conservation-statuses.activate');
+    Route::patch('conservation-statuses/{conservationStatus}/deactivate', [\App\Http\Controllers\ConservationStatusController::class, 'deactivate'])->name('conservation-statuses.deactivate');
+
+    /*
     | Clienti
     */
     Route::get('clients/search', [ClientController::class, 'search'])

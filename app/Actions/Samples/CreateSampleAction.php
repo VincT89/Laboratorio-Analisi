@@ -18,27 +18,52 @@ class CreateSampleAction
      */
     public function execute(array $data, int $userId): Sample
     {
-        return DB::transaction(function () use ($data, $userId) {
-            $data['created_by'] = $userId;
-            
-            $generated = $this->generateCodeAction->execute($data['code_progressive'] ?? null);
-            $data['code'] = $generated['code'];
-            $data['code_progressive'] = $generated['progressive'];
-            $data['code_year'] = $generated['year'];
+        $maxAttempts = 3;
 
-            $sampleType = SampleType::findOrFail($data['sample_type_id']);
-            $data['sample_type'] = $sampleType->name; // Fallback text column
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                return DB::transaction(function () use ($data, $userId) {
+                    $data['created_by'] = $userId;
+                    
+                    $generated = $this->generateCodeAction->execute($data['code_progressive'] ?? null);
+                    $data['code'] = $generated['code'];
+                    $data['code_progressive'] = $generated['progressive'];
+                    $data['code_year'] = $generated['year'];
 
-            if ($sampleType->is_sensitive) {
-                // Preregistrazione Tecnica Anonima: dominio sensibile
-                // Si accetta il collected_by/collection_site (necessario)
-                // Ma non il cliente o le note preesistenti
-                $data['client_id'] = null;
-                $data['notes'] = null;
-                $data['status'] = 'collected';
+                    $sampleType = SampleType::findOrFail($data['sample_type_id']);
+                    $data['sample_type'] = $sampleType->name; // Fallback text column
+
+                    if ($sampleType->is_sensitive) {
+                        // Preregistrazione Tecnica Anonima: dominio sensibile
+                        // Si accetta il collected_by/collection_site (necessario)
+                        // Ma non il cliente o le note preesistenti
+                        $data['client_id'] = null;
+                        $data['notes'] = null;
+                        $data['status'] = 'collected';
+                    }
+
+                    return Sample::create($data);
+                });
+            } catch (\Illuminate\Database\QueryException $e) {
+                if ($attempt === $maxAttempts || !$this->isUniqueConstraintViolation($e)) {
+                    throw $e;
+                }
+                
+                // Se era stato forzato un progressivo dall'utente, non ha senso ritentare con lo stesso numero
+                if (isset($data['code_progressive'])) {
+                    throw $e;
+                }
             }
+        }
+        
+        throw new \Exception("Impossibile generare un codice univoco per il campione dopo {$maxAttempts} tentativi.");
+    }
 
-            return Sample::create($data);
-        });
+    private function isUniqueConstraintViolation(\Illuminate\Database\QueryException $e): bool
+    {
+        $sqlState = $e->getCode();
+        $errorCode = $e->errorInfo[1] ?? null;
+
+        return $sqlState == 23000 || $errorCode == 1062 || $errorCode == 19;
     }
 }

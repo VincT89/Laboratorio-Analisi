@@ -43,8 +43,15 @@ class UpdateSampleRequest extends FormRequest
             'notes'           => ['nullable', 'string'],
             'lab_archived_by_name' => ['nullable', 'string', 'max:255'],
             'container_type_id' => ['nullable', 'exists:container_types,id'],
-            'conservation_status' => ['nullable', 'string', 'max:255'],
-            'sample_quantity' => ['nullable', 'string', 'max:255'],
+            'conservation_status' => [
+                'nullable', 
+                \Illuminate\Validation\Rule::exists('conservation_statuses', 'name')->where('is_active', true)
+            ],
+            'sample_quantity' => ['nullable', 'numeric', 'min:0'],
+            'sample_quantity_unit' => [
+                'nullable', 
+                \Illuminate\Validation\Rule::exists('measurement_units', 'name')->where('is_active', true)
+            ],
             'code_progressive' => [
                 'nullable', 
                 'integer', 

@@ -82,7 +82,7 @@
                     @error('collected_at') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
                 <div class="form-group">
-                    <label for="sample_type_id" class="form-label required">Tipo Campione</label>
+                    <label for="sample_type_id" class="form-label required">Tipologia di campione</label>
                     <select name="sample_type_id" id="sample_type_id" class="form-control" required>
                         <option value="">-- Seleziona il tipo --</option>
                         @foreach($sampleTypes as $type)
@@ -113,7 +113,7 @@
                     @error('collection_site') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
                 <div class="form-group">
-                    <label for="collected_by" class="form-label required">Prelevatore</label>
+                    <label for="collected_by" class="form-label required">Campionatore/i</label>
                     <input type="text" name="collected_by" id="collected_by" class="form-control"
                         value="{{ old('collected_by', $sample->collected_by) }}" required>
                     @error('collected_by') <span class="form-error">{{ $message }}</span> @enderror
@@ -122,7 +122,7 @@
 
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label for="lab_archived_by_name" class="form-label">Nominativo di chi archivia in lab.</label>
+                    <label for="lab_archived_by_name" class="form-label">Consegnato da</label>
                     <input type="text" name="lab_archived_by_name" id="lab_archived_by_name" class="form-control"
                         value="{{ old('lab_archived_by_name', $sample->lab_archived_by_name) }}">
                     @error('lab_archived_by_name') <span class="form-error">{{ $message }}</span> @enderror
@@ -143,16 +143,29 @@
 
             <div class="form-grid-2">
                 <div class="form-group">
-                    <label for="conservation_status" class="form-label">Stato di conservazione campione</label>
-                    <input type="text" name="conservation_status" id="conservation_status" class="form-control"
-                        value="{{ old('conservation_status', $sample->conservation_status) }}">
+                    <label for="conservation_status" class="form-label">Stato di conservazione del campione</label>
+                    <select name="conservation_status" id="conservation_status" class="form-control">
+                        <option value="">-- Seleziona --</option>
+                        @foreach($conservationStatuses as $key => $label)
+                            <option value="{{ $key }}" {{ old('conservation_status', $sample->conservation_status) == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
                     @error('conservation_status') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
                 <div class="form-group">
-                    <label for="sample_quantity" class="form-label">Quantità campione</label>
-                    <input type="text" name="sample_quantity" id="sample_quantity" class="form-control"
-                        value="{{ old('sample_quantity', $sample->sample_quantity) }}">
-                    @error('sample_quantity') <span class="form-error">{{ $message }}</span> @enderror
+                    <label for="sample_quantity" class="form-label">Quantità di campione</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="number" step="any" name="sample_quantity" id="sample_quantity" class="form-control"
+                            value="{{ old('sample_quantity', $sample->sample_quantity) }}" style="flex: 2;">
+                        <select name="sample_quantity_unit" id="sample_quantity_unit" class="form-control" style="flex: 1;">
+                            <option value="">-- Unità --</option>
+                            @foreach($quantityUnits as $key => $label)
+                                <option value="{{ $key }}" {{ old('sample_quantity_unit', $sample->sample_quantity_unit) == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @error('sample_quantity') <span class="form-error" style="display:block">{{ $message }}</span> @enderror
+                    @error('sample_quantity_unit') <span class="form-error" style="display:block">{{ $message }}</span> @enderror
                 </div>
             </div>
 

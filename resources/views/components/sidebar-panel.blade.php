@@ -81,7 +81,7 @@
 
         @if(auth()->user()->isAdmin())
         <div class="panel-nav-group">
-            <span class="panel-nav-label">Amministrazione</span>
+            <span class="panel-nav-label">Amministrazione Staff</span>
 
             <a href="{{ route('staff.index') }}"
                class="panel-nav-item {{ request()->routeIs('staff.index') ? 'active' : '' }}" title="Lista staff">
@@ -95,6 +95,10 @@
                 <x-heroicon-o-user-plus />
                 <span class="panel-nav-item-text">Nuovo utente</span>
             </a>
+        </div>
+
+        <div class="panel-nav-group">
+            <span class="panel-nav-label">Configurazione campione</span>
 
             <a href="{{ route('sample-types.index') }}"
                class="panel-nav-item {{ request()->routeIs('sample-types.*') ? 'active' : '' }}" title="Tipi di Campione (Matrici)">
@@ -106,6 +110,18 @@
                class="panel-nav-item {{ request()->routeIs('container-types.*') ? 'active' : '' }}" title="Tipi di Contenitore (Backoffice Lab)">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M5 6v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span class="panel-nav-item-text">Tipi Contenitore</span>
+            </a>
+
+            <a href="{{ route('measurement-units.index') }}"
+               class="panel-nav-item {{ request()->routeIs('measurement-units.*') ? 'active' : '' }}" title="Unità di Misura">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                <span class="panel-nav-item-text">Unità di Misura</span>
+            </a>
+
+            <a href="{{ route('conservation-statuses.index') }}"
+               class="panel-nav-item {{ request()->routeIs('conservation-statuses.*') ? 'active' : '' }}" title="Stati di Conservazione">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span class="panel-nav-item-text">Stati Conservazione</span>
             </a>
         </div>
         @endif

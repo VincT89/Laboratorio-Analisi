@@ -69,7 +69,7 @@
         <div class="sample-card-body">
             <dl class="sample-dl">
                 <div class="sample-dl-item">
-                    <dt class="sample-dl-label">Tipo Campione</dt>
+                    <dt class="sample-dl-label">Tipologia di campione</dt>
                     <dd class="sample-dl-value">{{ $sample->sampleType ? $sample->sampleType->name : $sample->sample_type }}</dd>
                 </div>
                 <div class="sample-dl-item">
@@ -81,11 +81,11 @@
                     <dd class="sample-dl-value">{{ $sample->collection_site ?? '—' }}</dd>
                 </div>
                 <div class="sample-dl-item">
-                    <dt class="sample-dl-label">Prelevatore</dt>
+                    <dt class="sample-dl-label">Campionatore/i</dt>
                     <dd class="sample-dl-value">{{ $sample->collected_by ?? '—' }}</dd>
                 </div>
                 <div class="sample-dl-item">
-                    <dt class="sample-dl-label">Nom. archiviazione lab</dt>
+                    <dt class="sample-dl-label">Consegnato da</dt>
                     <dd class="sample-dl-value">{{ $sample->lab_archived_by_name ?? '—' }}</dd>
                 </div>
                 <div class="sample-dl-item">
@@ -93,12 +93,12 @@
                     <dd class="sample-dl-value">{{ $sample->containerType ? $sample->containerType->name : '—' }}</dd>
                 </div>
                 <div class="sample-dl-item">
-                    <dt class="sample-dl-label">Stato conservazione</dt>
+                    <dt class="sample-dl-label">Stato di conservazione del campione</dt>
                     <dd class="sample-dl-value">{{ $sample->conservation_status ?? '—' }}</dd>
                 </div>
                 <div class="sample-dl-item">
-                    <dt class="sample-dl-label">Quantità campione</dt>
-                    <dd class="sample-dl-value">{{ $sample->sample_quantity ?? '—' }}</dd>
+                    <dt class="sample-dl-label">Quantità di campione</dt>
+                    <dd class="sample-dl-value">{{ $sample->sample_quantity ?? '—' }} {{ $sample->sample_quantity_unit ?? '' }}</dd>
                 </div>
                 <div class="sample-dl-item">
                     <dt class="sample-dl-label">Accettato in Laboratorio</dt>
@@ -262,13 +262,15 @@
                             $labels = [
                                 'status'          => 'Stato',
                                 'notes'           => 'Note',
-                                'sample_type'     => 'Tipo Campione (Legacy)',
-                                'sample_type_id'  => 'Matrice (Tipo Campione)',
+                                'sample_type'     => 'Tipologia di campione (Legacy)',
+                                'sample_type_id'  => 'Matrice (Tipologia di campione)',
                                 'collection_site' => 'Sito di Prelievo',
                                 'accepted_at'     => 'Data Accettazione',
                                 'collected_at'    => 'Data Prelievo',
-                                'collected_by'    => 'Prelevatore',
+                                'collected_by'    => 'Campionatore/i',
                                 'client_id'       => 'Cliente',
+                                'sample_quantity' => 'Quantità',
+                                'sample_quantity_unit' => 'Unità di misura',
                             ];
                             $valueTranslations = [
                                 'collected' => 'Prelevato',
