@@ -3,13 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
+use App\Models\DocumentType;
 use App\Models\Sample;
 use App\Models\SampleType;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class SensitiveSampleWorkflowTest extends TestCase
@@ -17,14 +17,17 @@ class SensitiveSampleWorkflowTest extends TestCase
     use RefreshDatabase;
 
     protected User $admin;
+
     protected User $staff;
+
     protected SampleType $sensitiveType;
+
     protected SampleType $standardType;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         $this->seed(RolesAndPermissionsSeeder::class);
 
         $this->admin = User::factory()->create();
@@ -46,12 +49,12 @@ class SensitiveSampleWorkflowTest extends TestCase
             'collection_site' => 'Site A',
             'collected_by' => 'Dr. Bob',
             // Even if staff tries to send client_id, the controller ignores it
-            'client_id' => 999, 
+            'client_id' => 999,
             'notes' => 'Some sensitive notes', // This should be nulled out
         ]);
 
         $sample = Sample::first();
-        
+
         $this->assertNotNull($sample);
         $this->assertTrue($sample->isSensitive());
         $this->assertNull($sample->client_id);
@@ -76,7 +79,7 @@ class SensitiveSampleWorkflowTest extends TestCase
             'collection_site' => null,
             'collected_at' => now(),
             'status' => 'collected',
-            'created_by' => $this->staff->id
+            'created_by' => $this->staff->id,
         ]);
 
         $this->actingAs($this->staff)->get(route('samples.show', $sample))->assertStatus(403);
@@ -95,7 +98,7 @@ class SensitiveSampleWorkflowTest extends TestCase
             'collection_site' => null,
             'collected_at' => now(),
             'status' => 'collected',
-            'created_by' => $this->staff->id
+            'created_by' => $this->staff->id,
         ]);
 
         $this->actingAs($this->admin)->get(route('samples.show', $sample))->assertStatus(200);
@@ -104,6 +107,7 @@ class SensitiveSampleWorkflowTest extends TestCase
 
     public function test_staff_upload_and_download_files_on_sensitive_are_blocked()
     {
+        $documentType = DocumentType::where('code', 'attachment')->firstOrFail();
         $sample = Sample::create([
             'code' => '0003/26',
             'code_progressive' => 3,
@@ -114,33 +118,34 @@ class SensitiveSampleWorkflowTest extends TestCase
             'collection_site' => null,
             'collected_at' => now(),
             'status' => 'collected',
-            'created_by' => $this->staff->id
+            'created_by' => $this->staff->id,
         ]);
 
         $fileData = [
-            'file' => \Illuminate\Http\UploadedFile::fake()->create('test.pdf', 100),
-            'type' => 'attachment',
+            'file' => UploadedFile::fake()->create('test.pdf', 100),
+            'document_type_id' => $documentType->id,
         ];
 
         // Store block
         $this->actingAs($this->staff)
-             ->post(route('samples.files.store', $sample), $fileData)
-             ->assertStatus(403);
+            ->post(route('samples.files.store', $sample), $fileData)
+            ->assertStatus(403);
 
         // Bypass create directly to test download block
         $sampleFile = $sample->files()->create([
+            'document_type_id' => $documentType->id,
             'original_name' => 'test.pdf',
             'path' => 'fake/path.pdf',
             'type' => 'attachment',
             'mime_type' => 'application/pdf',
             'extension' => 'pdf',
             'size' => 100,
-            'uploaded_by' => $this->admin->id
+            'uploaded_by' => $this->admin->id,
         ]);
 
         $this->actingAs($this->staff)
-             ->get(route('samples.files.download', [$sample, $sampleFile]))
-             ->assertStatus(403);
+            ->get(route('samples.files.download', [$sample, $sampleFile]))
+            ->assertStatus(403);
     }
 
     public function test_admin_accept_and_complete_are_blocked_until_complete()
@@ -155,27 +160,27 @@ class SensitiveSampleWorkflowTest extends TestCase
             'collection_site' => null,
             'collected_at' => now(),
             'status' => 'collected',
-            'created_by' => $this->staff->id
+            'created_by' => $this->staff->id,
         ]);
 
         $this->assertTrue($sample->isSensitiveIncomplete());
 
         // Admin cannot accept it while incomplete
         $this->actingAs($this->admin)
-             ->patch(route('samples.accept', $sample))
-             ->assertStatus(403);
-             
+            ->patch(route('samples.accept', $sample))
+            ->assertStatus(403);
+
         $sample->update(['status' => 'accepted']); // forced to test complete
-        
+
         $this->actingAs($this->admin)
-             ->patch(route('samples.complete', $sample))
-             ->assertStatus(403);
+            ->patch(route('samples.complete', $sample))
+            ->assertStatus(403);
 
         // Assign client to make it complete
         $client = Client::create([
             'company_name' => 'ACME Corp',
             'type' => 'company',
-            'created_by' => $this->admin->id
+            'created_by' => $this->admin->id,
         ]);
         $sample->update(['client_id' => $client->id]);
 
@@ -183,7 +188,7 @@ class SensitiveSampleWorkflowTest extends TestCase
 
         // Now Admin can complete it
         $this->actingAs($this->admin)
-             ->patch(route('samples.complete', $sample))
-             ->assertRedirect();
+            ->patch(route('samples.complete', $sample))
+            ->assertRedirect();
     }
 }

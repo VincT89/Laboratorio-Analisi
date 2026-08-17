@@ -16,10 +16,11 @@
         <span class="badge
             @if($sample->status === 'completed') badge-completed
             @elseif($sample->status === 'accepted') badge-accepted
+            @elseif($sample->status === 'rejected') badge-rejected
             @else badge-collected
             @endif">
             <span class="badge-dot"></span>
-            {{ $sample->status === 'collected' ? 'Prelevato' : ($sample->status === 'accepted' ? 'Accettato' : 'Completato') }}
+            {{ $sample->status_label }}
         </span>
     </div>
 
@@ -156,7 +157,6 @@
                 </div>
             </div>
 
-            {{-- Lo stato del campione è gestito tramite azioni dedicate (accept/complete) e non da questo form --}}
             <div class="form-section-box">
                 <div class="form-grid-2">
                     <div class="form-group">
@@ -166,10 +166,22 @@
                         </p>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Stato del Campione</label>
-                        <p class="form-control-static" style="font-weight: 500;">
-                            {{ $sample->status === 'collected' ? 'Prelevato' : ($sample->status === 'accepted' ? 'Accettato' : 'Completato') }}
-                        </p>
+                        @if(!$sample->isSensitive())
+                            <label for="status" class="form-label required">Stato del Campione</label>
+                            <select name="status" id="status" class="form-control" required>
+                                @foreach(\App\Models\Sample::STATUS_LABELS as $value => $label)
+                                    <option value="{{ $value }}" {{ old('status', $sample->status) === $value ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="form-help-text">Se riporti il campione a Prelevato, la data di accettazione verrà rimossa.</small>
+                            @error('status') <span class="form-error">{{ $message }}</span> @enderror
+                        @else
+                            <label class="form-label">Stato del Campione</label>
+                            <p class="form-control-static" style="font-weight: 500;">{{ $sample->status_label }}</p>
+                            <small class="form-help-text">Per i campioni sensibili lo stato segue il flusso dedicato.</small>
+                        @endif
                     </div>
                 </div>
             </div>

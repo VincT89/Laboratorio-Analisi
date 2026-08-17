@@ -1,10 +1,16 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ContainerTypeController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentTypeController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SampleController;
 use App\Http\Controllers\SampleFileController;
+use App\Http\Controllers\SampleTypeController;
+use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,18 +18,19 @@ use Illuminate\Support\Facades\Auth;
 |--------------------------------------------------------------------------
 */
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 // Homepage pubblica — reindirizza al login o ai campioni
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('samples.index');
     }
+
     return view('welcome');
 })->name('home');
 
 // Dashboard principale
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 /*
@@ -36,28 +43,35 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /*
     | Profilo Personale
     */
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     // Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
 
     /*
     | Staff
     */
-    Route::resource('staff', \App\Http\Controllers\StaffController::class)->except('show');
+    Route::resource('staff', StaffController::class)->except('show');
 
     /*
     | Tipi di Campione (Catalogo Matrici)
     */
-    Route::resource('sample-types', \App\Http\Controllers\SampleTypeController::class)->except(['show', 'destroy']);
-    Route::patch('sample-types/{sampleType}/activate', [\App\Http\Controllers\SampleTypeController::class, 'activate'])->name('sample-types.activate');
-    Route::patch('sample-types/{sampleType}/deactivate', [\App\Http\Controllers\SampleTypeController::class, 'deactivate'])->name('sample-types.deactivate');
+    Route::resource('sample-types', SampleTypeController::class)->except(['show', 'destroy']);
+    Route::patch('sample-types/{sampleType}/activate', [SampleTypeController::class, 'activate'])->name('sample-types.activate');
+    Route::patch('sample-types/{sampleType}/deactivate', [SampleTypeController::class, 'deactivate'])->name('sample-types.deactivate');
 
     /*
     | Tipi di Contenitore (Backoffice Lab)
     */
-    Route::resource('container-types', \App\Http\Controllers\ContainerTypeController::class)->except(['show', 'destroy']);
-    Route::patch('container-types/{containerType}/activate', [\App\Http\Controllers\ContainerTypeController::class, 'activate'])->name('container-types.activate');
-    Route::patch('container-types/{containerType}/deactivate', [\App\Http\Controllers\ContainerTypeController::class, 'deactivate'])->name('container-types.deactivate');
+    Route::resource('container-types', ContainerTypeController::class)->except(['show', 'destroy']);
+    Route::patch('container-types/{containerType}/activate', [ContainerTypeController::class, 'activate'])->name('container-types.activate');
+    Route::patch('container-types/{containerType}/deactivate', [ContainerTypeController::class, 'deactivate'])->name('container-types.deactivate');
+
+    /*
+    | Tipi di Documento (Backoffice Lab)
+    */
+    Route::resource('document-types', DocumentTypeController::class)->except(['show', 'destroy']);
+    Route::patch('document-types/{documentType}/activate', [DocumentTypeController::class, 'activate'])->name('document-types.activate');
+    Route::patch('document-types/{documentType}/deactivate', [DocumentTypeController::class, 'deactivate'])->name('document-types.deactivate');
 
     /*
     | Clienti

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreSampleFileRequest;
+use App\Models\DocumentType;
 use App\Models\Sample;
 use App\Models\SampleFile;
-use App\Http\Requests\StoreSampleFileRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -25,33 +25,35 @@ class SampleFileController extends Controller
     public function store(StoreSampleFileRequest $request, Sample $sample)
     {
         $this->authorize('create', SampleFile::class);
-        
+
         abort_if($sample->isSensitive() && auth()->user()->hasRole('staff'), 403, 'Non disponi dei permessi per gestire file su un campione con privacy elevata.');
         abort_if($sample->archived, 403, 'Non puoi caricare file su un campione archiviato.');
 
         $file = $request->file('file');
+        $documentType = DocumentType::active()->findOrFail($request->integer('document_type_id'));
 
         // Salva il file in storage privato, organizzato per campione
         $path = $file->store("samples/{$sample->id}", 'private');
 
-        SampleFile::create([
-            'sample_id'     => $sample->id,
+        $sampleFile = SampleFile::create([
+            'sample_id' => $sample->id,
+            'document_type_id' => $documentType->id,
             'original_name' => $file->getClientOriginalName(),
-            'path'          => $path,
-            'type'          => $request->type,
-            'mime_type'     => $file->getMimeType(),
-            'extension'     => $file->getClientOriginalExtension(),
-            'size'          => $file->getSize(),
-            'description'   => $request->description,
-            'uploaded_by'   => Auth::id(),
+            'path' => $path,
+            'type' => $documentType->code,
+            'mime_type' => $file->getMimeType(),
+            'extension' => $file->getClientOriginalExtension(),
+            'size' => $file->getSize(),
+            'description' => $request->description,
+            'uploaded_by' => Auth::id(),
         ]);
 
-        $tipoDoc = $request->type === 'report' ? 'Referto' : ($request->type === 'prescription' ? 'Certificato' : 'Allegato');
-        
+        $tipoDoc = $documentType->name;
+
         activity()
             ->performedOn($sample)
             ->causedBy(Auth::user())
-            ->log("Caricato {$tipoDoc}: " . $file->getClientOriginalName());
+            ->log("Caricato {$tipoDoc}: ".$file->getClientOriginalName());
 
         return redirect()
             ->route('samples.show', $sample)
@@ -69,7 +71,7 @@ class SampleFileController extends Controller
 
         $path = Storage::disk('private')->path($sampleFile->path);
 
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             abort(404, 'File non trovato.');
         }
 
@@ -77,8 +79,6 @@ class SampleFileController extends Controller
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
-
-
 
     /**
      * Archivia un file.
@@ -89,7 +89,7 @@ class SampleFileController extends Controller
         $this->authorize('archive', $sampleFile);
 
         $sampleFile->update([
-            'archived'    => true,
+            'archived' => true,
             'archived_at' => now(),
             'archived_by' => Auth::id(),
         ]);
@@ -116,7 +116,7 @@ class SampleFileController extends Controller
         activity()
             ->performedOn($sample)
             ->causedBy(Auth::user())
-            ->log("Eliminato documento: " . $fileName);
+            ->log('Eliminato documento: '.$fileName);
 
         return redirect()
             ->route('samples.show', $sample)

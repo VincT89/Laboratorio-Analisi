@@ -3,9 +3,13 @@
 namespace Tests\Feature;
 
 use App\Models\Client;
+use App\Models\DocumentType;
 use App\Models\Sample;
+use App\Models\SampleType;
 use App\Models\User;
+use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Testing\File;
 use Tests\TestCase;
 
 class SampleWorkflowTest extends TestCase
@@ -13,16 +17,17 @@ class SampleWorkflowTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private Sample $sample;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+        $this->seed(RolesAndPermissionsSeeder::class);
         $this->admin = User::factory()->create();
         $this->admin->assignRole('admin');
         $client = Client::create(['type' => 'company', 'company_name' => 'Factory Srl']);
-        $type = \App\Models\SampleType::factory()->create();
+        $type = SampleType::factory()->create();
         $this->sample = Sample::create([
             'client_id' => $client->id,
             'sample_type_id' => $type->id,
@@ -34,34 +39,90 @@ class SampleWorkflowTest extends TestCase
             'code_progressive' => 1,
             'code_year' => 26,
             'status' => 'collected',
-            'created_by' => $this->admin->id
+            'created_by' => $this->admin->id,
         ]);
     }
 
-    public function test_cannot_change_status_bypassing_workflow_via_update()
+    private function validUpdatePayload(array $overrides = []): array
     {
-        // Manda una put cercando di sbiancare lo stato a 'completed' illecitamente
-        $response = $this->actingAs($this->admin)->patch(route('samples.update', $this->sample), [
+        return array_merge([
             'client_id' => $this->sample->client_id,
-            'collected_at' => $this->sample->collected_at,
+            'collected_at' => $this->sample->collected_at->format('Y-m-d'),
             'sample_type_id' => $this->sample->sample_type_id,
             'collection_site' => $this->sample->collection_site,
             'collected_by' => $this->sample->collected_by,
-            'status' => 'completed' // Attacco
-        ]);
+        ], $overrides);
+    }
+
+    public function test_staff_can_edit_standard_sample_status_from_form()
+    {
+        $staff = User::factory()->create();
+        $staff->assignRole('staff');
+
+        $response = $this->actingAs($staff)->patch(
+            route('samples.update', $this->sample),
+            $this->validUpdatePayload(['status' => 'completed'])
+        );
 
         $response->assertSessionHasNoErrors();
-        
+        $response->assertRedirect(route('samples.show', $this->sample));
+
+        $this->sample->refresh();
+        $this->assertEquals('completed', $this->sample->status);
+        $this->assertNotNull($this->sample->accepted_at);
+        $this->assertEquals($staff->id, $this->sample->updated_by);
+    }
+
+    public function test_standard_sample_can_be_returned_to_collected()
+    {
+        $staff = User::factory()->create();
+        $staff->assignRole('staff');
+        $this->sample->update([
+            'status' => 'completed',
+            'accepted_at' => now(),
+        ]);
+
+        $response = $this->actingAs($staff)->patch(
+            route('samples.update', $this->sample),
+            $this->validUpdatePayload(['status' => 'collected'])
+        );
+
+        $response->assertSessionHasNoErrors();
+
         $this->sample->refresh();
         $this->assertEquals('collected', $this->sample->status);
+        $this->assertNull($this->sample->accepted_at);
+    }
+
+    public function test_sensitive_sample_status_cannot_be_changed_from_edit_form()
+    {
+        $sensitiveType = SampleType::factory()->create([
+            'is_sensitive' => true,
+        ]);
+
+        $this->sample->update([
+            'sample_type_id' => $sensitiveType->id,
+            'sample_type' => $sensitiveType->name,
+        ]);
+        $this->sample->refresh();
+
+        $response = $this->actingAs($this->admin)->from(route('samples.edit', $this->sample))->patch(
+            route('samples.update', $this->sample),
+            $this->validUpdatePayload(['status' => 'completed'])
+        );
+
+        $response->assertRedirect(route('samples.edit', $this->sample));
+        $response->assertSessionHasErrors('status');
+
+        $this->assertEquals('collected', $this->sample->fresh()->status);
     }
 
     public function test_accept_transition_works_and_sets_accepted_at()
     {
         $response = $this->actingAs($this->admin)->patch(route('samples.accept', $this->sample));
-        
+
         $response->assertRedirect();
-        
+
         $this->sample->refresh();
         $this->assertEquals('accepted', $this->sample->status);
         $this->assertNotNull($this->sample->accepted_at);
@@ -71,7 +132,7 @@ class SampleWorkflowTest extends TestCase
     {
         // Il campione è ancora 'collected'
         $response = $this->actingAs($this->admin)->patch(route('samples.complete', $this->sample));
-        
+
         $response->assertStatus(403);
     }
 
@@ -82,21 +143,23 @@ class SampleWorkflowTest extends TestCase
 
         // Manda una POST per caricare un file (simulato)
         // Siccome il file validation richiede un uploaded file, passiamo uno stub o controlliamo l'autorizzazione generica
+        $documentType = DocumentType::where('code', 'revised_report')->firstOrFail();
         $response = $this->actingAs($this->admin)->post(route('samples.files.store', $this->sample), [
-            'type' => 'revised_report',
-            'file' => \Illuminate\Http\Testing\File::create('test.pdf', 100),
+            'document_type_id' => $documentType->id,
+            'file' => File::create('test.pdf', 100),
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('sample_files', [
             'sample_id' => $this->sample->id,
-            'type' => 'revised_report'
+            'document_type_id' => $documentType->id,
+            'type' => 'revised_report',
         ]);
         $this->sample->refresh();
         $this->assertFalse((bool) $this->sample->archived);
     }
 
-    public function test_accepted_at_cannot_be_altered_via_update_API()
+    public function test_accepted_at_cannot_be_altered_via_update_api()
     {
         $this->sample->update(['accepted_at' => null, 'status' => 'collected']);
 
@@ -104,14 +167,14 @@ class SampleWorkflowTest extends TestCase
         $response = $this->actingAs($this->admin)->put(route('samples.update', $this->sample), [
             'client_id' => $this->sample->client_id,
             'collected_at' => now()->subDays(2)->format('Y-m-d'),
-            'sample_type_id' => \App\Models\SampleType::factory()->create()->id,
+            'sample_type_id' => SampleType::factory()->create()->id,
             'collection_site' => 'Lab 1',
             'collected_by' => 'Mario Rossi',
-            'accepted_at' => now()->format('Y-m-d H:i:s') // Attacco: cerchiamo di immettere accepted_at
+            'accepted_at' => now()->format('Y-m-d H:i:s'), // Attacco: cerchiamo di immettere accepted_at
         ]);
 
         $response->assertRedirect();
-        
+
         $this->sample->refresh();
         $this->assertNull($this->sample->accepted_at); // Non deve essersi salvato
     }
@@ -119,9 +182,9 @@ class SampleWorkflowTest extends TestCase
     public function test_reject_transition_works()
     {
         $response = $this->actingAs($this->admin)->patch(route('samples.reject', $this->sample));
-        
+
         $response->assertRedirect();
-        
+
         $this->sample->refresh();
         $this->assertEquals('rejected', $this->sample->status);
     }

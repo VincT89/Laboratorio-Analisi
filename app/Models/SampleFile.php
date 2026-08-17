@@ -4,18 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class SampleFile extends Model
 {
     use LogsActivity;
 
     /**
+     * Etichette usate soltanto come compatibilità per i file storici
+     * non ancora collegati al catalogo.
+     */
+    public const LEGACY_TYPE_LABELS = [
+        'report' => 'Referto / Rapporto di Prova',
+        'attachment' => 'Allegato Generico',
+        'prescription' => 'Certificato',
+        'revised_report' => 'Referto Revisionato',
+    ];
+
+    /**
      * Campi compilabili in massa.
      */
     protected $fillable = [
         'sample_id',
+        'document_type_id',
         'original_name',
         'type',
         'path',
@@ -33,9 +45,9 @@ class SampleFile extends Model
      * Cast automatici.
      */
     protected $casts = [
-        'archived'    => 'boolean',
+        'archived' => 'boolean',
         'archived_at' => 'datetime',
-        'size'        => 'integer',
+        'size' => 'integer',
     ];
 
     /**
@@ -51,11 +63,29 @@ class SampleFile extends Model
     }
 
     /**
+     * Etichetta leggibile della tipologia del documento.
+     */
+    public function getTypeLabelAttribute(): string
+    {
+        return $this->documentType?->name
+            ?? self::LEGACY_TYPE_LABELS[$this->type]
+            ?? $this->type;
+    }
+
+    /**
      * Il file appartiene a un campione.
      */
     public function sample(): BelongsTo
     {
         return $this->belongsTo(Sample::class);
+    }
+
+    /**
+     * Tipologia configurabile assegnata al documento.
+     */
+    public function documentType(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class);
     }
 
     /**
@@ -92,7 +122,7 @@ class SampleFile extends Model
 
     public function isDownloadable(): bool
     {
-        return !$this->archived && !$this->sample->archived;
+        return ! $this->archived && ! $this->sample->archived;
     }
 
     /**
@@ -103,13 +133,13 @@ class SampleFile extends Model
         $bytes = $this->size;
 
         if ($bytes >= 1048576) {
-            return number_format($bytes / 1048576, 2) . ' MB';
+            return number_format($bytes / 1048576, 2).' MB';
         }
 
         if ($bytes >= 1024) {
-            return number_format($bytes / 1024, 2) . ' KB';
+            return number_format($bytes / 1024, 2).' KB';
         }
 
-        return $bytes . ' B';
+        return $bytes.' B';
     }
 }

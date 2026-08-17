@@ -3,19 +3,23 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSampleFileRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', \App\Models\SampleFile::class);
+        return $this->user()->can('create', SampleFile::class);
     }
 
     public function rules(): array
     {
         return [
-            'file'        => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,csv,jpg,jpeg,png'],
-            'type'        => ['required', 'in:report,attachment,prescription,revised_report'],
+            'file' => ['required', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,csv,jpg,jpeg,png'],
+            'document_type_id' => [
+                'required',
+                Rule::exists('document_types', 'id')->where('is_active', true),
+            ],
             'description' => ['nullable', 'string', 'max:255'],
         ];
     }
@@ -24,11 +28,11 @@ class StoreSampleFileRequest extends FormRequest
     {
         return [
             'file.required' => 'Il file è obbligatorio.',
-            'file.file'     => 'Il file caricato non è valido.',
-            'file.max'      => 'Il file non può superare i 20MB.',
-            'file.mimes'    => 'Sono accettati solo file PDF, Word, Excel, CSV e immagini.',
-            'type.required' => 'Il tipo di documento è obbligatorio.',
-            'type.in'       => 'Tipo di documento non valido.',
+            'file.file' => 'Il file caricato non è valido.',
+            'file.max' => 'Il file non può superare i 20MB.',
+            'file.mimes' => 'Sono accettati solo file PDF, Word, Excel, CSV e immagini.',
+            'document_type_id.required' => 'Il tipo di documento è obbligatorio.',
+            'document_type_id.exists' => 'Il tipo di documento selezionato non è disponibile.',
         ];
     }
 }
