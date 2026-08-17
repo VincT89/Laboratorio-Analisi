@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             SampleTypesSeeder::class,
             ContainerTypesSeeder::class,
+            DocumentTypesSeeder::class,
             ClientsSeeder::class,
             SamplesSeeder::class,
         ]);

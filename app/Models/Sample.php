@@ -5,16 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 /**
- * Lo stato del campione è gestito tramite metodi di workflow (accept, complete).
- * Le archiviazione operano in cascata sui file e blindano l'entità.
+ * Le archiviazioni operano in cascata sui file e blindano l'entità.
  */
 class Sample extends Model
 {
     use LogsActivity;
+
+    /**
+     * Stati selezionabili per i campioni standard.
+     */
+    public const STATUS_LABELS = [
+        'collected' => 'Prelevato',
+        'accepted' => 'Accettato',
+        'completed' => 'Completato',
+        'rejected' => 'Rifiutato',
+    ];
 
     /**
      * Campi compilabili in massa.
@@ -49,9 +58,9 @@ class Sample extends Model
      */
     protected $casts = [
         'collected_at' => 'date',
-        'accepted_at'  => 'date',
-        'archived'     => 'boolean',
-        'archived_at'  => 'datetime',
+        'accepted_at' => 'date',
+        'archived' => 'boolean',
+        'archived_at' => 'datetime',
         'sample_quantity' => 'decimal:3',
     ];
 
@@ -65,6 +74,14 @@ class Sample extends Model
             ->logFillable()
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
+    }
+
+    /**
+     * Etichetta leggibile dello stato corrente.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return self::STATUS_LABELS[$this->status] ?? $this->status;
     }
 
     /**
@@ -149,21 +166,21 @@ class Sample extends Model
 
     public function canBeAccepted(): bool
     {
-        return !$this->archived && 
-               $this->status === 'collected' && 
-               !$this->isSensitiveIncomplete();
+        return ! $this->archived &&
+               $this->status === 'collected' &&
+               ! $this->isSensitiveIncomplete();
     }
 
     public function canBeCompleted(): bool
     {
-        return !$this->archived && 
-               $this->status === 'accepted' && 
-               !$this->isSensitiveIncomplete();
+        return ! $this->archived &&
+               $this->status === 'accepted' &&
+               ! $this->isSensitiveIncomplete();
     }
 
     public function canBeRejected(): bool
     {
-        return !$this->archived && $this->status !== 'completed' && $this->status !== 'rejected';
+        return ! $this->archived && $this->status !== 'completed' && $this->status !== 'rejected';
     }
 
     /**

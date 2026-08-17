@@ -8,7 +8,7 @@
 @endsection
 
 @section('content')
-<div x-data="{ tab: 'dati' }" class="sample-detail">
+<div x-data="{ tab: @js($errors->hasAny(['file', 'document_type_id', 'description']) ? 'file' : 'dati') }" class="sample-detail">
     <div class="sample-box">
 
         {{-- Intestazione --}}
@@ -187,12 +187,15 @@
                 </div>
                 <div class="sample-upload-field">
                     <label class="form-label">Tipo Documento</label>
-                    <select name="type" class="form-control">
-                        <option value="report">Referto / Rapporto di Prova</option>
-                        <option value="attachment">Allegato Generico</option>
-                        <option value="prescription">Certificato</option>
-                        <option value="revised_report">Referto Revisionato</option>
+                    <select name="document_type_id" class="form-control" required>
+                        <option value="" disabled {{ old('document_type_id') ? '' : 'selected' }}>-- Seleziona la tipologia --</option>
+                        @foreach($documentTypes as $documentType)
+                            <option value="{{ $documentType->id }}" {{ (string) old('document_type_id') === (string) $documentType->id ? 'selected' : '' }}>
+                                {{ $documentType->name }}
+                            </option>
+                        @endforeach
                     </select>
+                    @error('document_type_id') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
                 <button type="submit" class="btn btn-primary">Carica</button>
             </form>
@@ -221,7 +224,7 @@
                                 {{ $file->original_name }}
                             </a>
                         </td>
-                        <td>{{ $file->type === 'report' ? 'Referto / Rapporto di Prova' : ($file->type === 'prescription' ? 'Certificato' : ($file->type === 'revised_report' ? 'Referto Revisionato' : 'Allegato Generico')) }}</td>
+                        <td>{{ $file->type_label }}</td>
                         <td>{{ $file->created_at->format('d/m/Y H:i') }}</td>
                         <td style="text-align:right">
                             @can('delete', $file)

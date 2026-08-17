@@ -2,21 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sample;
-use App\Models\Client;
-use App\Models\SampleType;
-use App\Models\ContainerType;
-use App\Models\MeasurementUnit;
-use App\Models\ConservationStatus;
+use App\Actions\Samples\CreateSampleAction;
+use App\Actions\Samples\UpdateSampleAction;
+use App\Actions\Samples\Workflow\AcceptSampleAction;
+use App\Actions\Samples\Workflow\ArchiveSampleAction;
+use App\Actions\Samples\Workflow\CompleteSampleAction;
+use App\Actions\Samples\Workflow\RejectSampleAction;
+use App\Actions\Samples\Workflow\RestoreSampleAction;
 use App\Http\Requests\StoreSampleRequest;
 use App\Http\Requests\UpdateSampleRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-
+use App\Models\Client;
+use App\Models\ConservationStatus;
+use App\Models\ContainerType;
+use App\Models\DocumentType;
+use App\Models\MeasurementUnit;
+use App\Models\Sample;
+use App\Models\SampleType;
 use App\Queries\Samples\ActiveSamplesIndexQuery;
 use App\Queries\Samples\ArchivedSamplesIndexQuery;
 use App\Queries\Samples\SampleMetricsQuery;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SampleController extends Controller
 {
@@ -54,14 +62,14 @@ class SampleController extends Controller
             : null;
 
         $sampleTypes = SampleType::where('is_active', true)->orderBy('name')->get();
-        $containerTypes = \App\Models\ContainerType::where('is_active', true)->orderBy('name')->get();
+        $containerTypes = ContainerType::where('is_active', true)->orderBy('name')->get();
 
-        $conservationStatuses = \App\Models\ConservationStatus::active()
+        $conservationStatuses = ConservationStatus::active()
             ->orderBy('sort_order')
             ->orderBy('name')
             ->pluck('name', 'name');
 
-        $quantityUnits = \App\Models\MeasurementUnit::active()
+        $quantityUnits = MeasurementUnit::active()
             ->orderBy('sort_order')
             ->orderBy('name')
             ->pluck('name', 'name');
@@ -69,7 +77,7 @@ class SampleController extends Controller
         return view('samples.create', compact('selectedClient', 'sampleTypes', 'containerTypes', 'mode', 'conservationStatuses', 'quantityUnits'));
     }
 
-    public function store(StoreSampleRequest $request, \App\Actions\Samples\CreateSampleAction $createSample)
+    public function store(StoreSampleRequest $request, CreateSampleAction $createSample)
     {
         $sample = $createSample->execute($request->validated(), Auth::id());
 
@@ -94,14 +102,18 @@ class SampleController extends Controller
         $sample->load([
             'client',
             'containerType',
-            'files'     => fn($q) => $q->active()->orderByDesc('created_at'),
+            'files' => fn ($q) => $q->with('documentType')->active()->orderByDesc('created_at'),
             'createdBy',
             'updatedBy',
         ]);
 
         $activities = $sample->activities()->orderByDesc('created_at')->get();
+        $documentTypes = DocumentType::active()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
 
-        return view('samples.show', compact('sample', 'activities'));
+        return view('samples.show', compact('sample', 'activities', 'documentTypes'));
     }
 
     /**
@@ -116,17 +128,17 @@ class SampleController extends Controller
             ->orderBy('name')
             ->get();
 
-        $containerTypes = \App\Models\ContainerType::where('is_active', true)
+        $containerTypes = ContainerType::where('is_active', true)
             ->orWhere('id', $sample->container_type_id)
             ->orderBy('name')
             ->get();
 
-        $conservationStatuses = \App\Models\ConservationStatus::active()
+        $conservationStatuses = ConservationStatus::active()
             ->orderBy('sort_order')
             ->orderBy('name')
             ->pluck('name', 'name');
 
-        $quantityUnits = \App\Models\MeasurementUnit::active()
+        $quantityUnits = MeasurementUnit::active()
             ->orderBy('sort_order')
             ->orderBy('name')
             ->pluck('name', 'name');
@@ -137,7 +149,7 @@ class SampleController extends Controller
     /**
      * Aggiorna un campione nel database.
      */
-    public function update(UpdateSampleRequest $request, Sample $sample, \App\Actions\Samples\UpdateSampleAction $updateSample)
+    public function update(UpdateSampleRequest $request, Sample $sample, UpdateSampleAction $updateSample)
     {
         $sample = $updateSample->execute($sample, $request->validated(), Auth::id());
 
@@ -149,7 +161,7 @@ class SampleController extends Controller
     /**
      * Accetta un campione.
      */
-    public function accept(Sample $sample, \App\Actions\Samples\Workflow\AcceptSampleAction $action)
+    public function accept(Sample $sample, AcceptSampleAction $action)
     {
         $this->authorize('accept', $sample);
 
@@ -163,7 +175,7 @@ class SampleController extends Controller
     /**
      * Segna il campione come completato.
      */
-    public function complete(Sample $sample, \App\Actions\Samples\Workflow\CompleteSampleAction $action)
+    public function complete(Sample $sample, CompleteSampleAction $action)
     {
         $this->authorize('complete', $sample);
 
@@ -177,7 +189,7 @@ class SampleController extends Controller
     /**
      * Rifiuta un campione.
      */
-    public function reject(Sample $sample, \App\Actions\Samples\Workflow\RejectSampleAction $action)
+    public function reject(Sample $sample, RejectSampleAction $action)
     {
         $this->authorize('reject', $sample);
 
@@ -191,7 +203,7 @@ class SampleController extends Controller
     /**
      * Archivia il campione e tutti i file associati in cascata.
      */
-    public function archive(Sample $sample, \App\Actions\Samples\Workflow\ArchiveSampleAction $action)
+    public function archive(Sample $sample, ArchiveSampleAction $action)
     {
         $this->authorize('archive', $sample);
 
@@ -206,7 +218,7 @@ class SampleController extends Controller
      * Ripristina il campione e tutti i file associati.
      * Non modifica lo stato del workflow (status).
      */
-    public function restore(Sample $sample, \App\Actions\Samples\Workflow\RestoreSampleAction $action)
+    public function restore(Sample $sample, RestoreSampleAction $action)
     {
         $this->authorize('restore', $sample);
 
@@ -226,10 +238,10 @@ class SampleController extends Controller
 
         // Cleanup fisico della cartella dei file associati al campione
         $path = "samples/{$sample->id}";
-        if (\Illuminate\Support\Facades\Storage::disk('private')->exists($path)) {
-            $deleted = \Illuminate\Support\Facades\Storage::disk('private')->deleteDirectory($path);
-            if (!$deleted) {
-                \Illuminate\Support\Facades\Log::warning("Impossibile cancellare la directory fisica del campione {$sample->id}");
+        if (Storage::disk('private')->exists($path)) {
+            $deleted = Storage::disk('private')->deleteDirectory($path);
+            if (! $deleted) {
+                Log::warning("Impossibile cancellare la directory fisica del campione {$sample->id}");
             }
         }
 
