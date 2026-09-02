@@ -108,7 +108,7 @@
                         </a>
                     </th>
                     <th>Cliente</th>
-                    <th>Tipo campione</th>
+                    <th>Tipologia di campione</th>
                     <th>Note</th>
                     <th aria-sort="{{ $currentSort === 'collected_at' ? ($currentDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}">
                         <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'collected_at', 'direction' => $nextCollectedDirection])) }}"

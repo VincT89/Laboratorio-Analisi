@@ -49,8 +49,15 @@ class StoreSampleRequest extends FormRequest
 
         $rules['lab_archived_by_name'] = ['nullable', 'string', 'max:255'];
         $rules['container_type_id']    = ['nullable', 'exists:container_types,id'];
-        $rules['conservation_status']  = ['nullable', 'string', 'max:255'];
-        $rules['sample_quantity']      = ['nullable', 'string', 'max:255'];
+        $rules['conservation_status']  = [
+            'nullable', 
+            \Illuminate\Validation\Rule::exists('conservation_statuses', 'name')->where('is_active', true)
+        ];
+        $rules['sample_quantity']      = ['nullable', 'numeric', 'min:0'];
+        $rules['sample_quantity_unit'] = [
+            'nullable', 
+            \Illuminate\Validation\Rule::exists('measurement_units', 'name')->where('is_active', true)
+        ];
         $year = (int) now()->format('y');
         $rules['code_progressive'] = [
             'nullable', 

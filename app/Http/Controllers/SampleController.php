@@ -12,8 +12,10 @@ use App\Actions\Samples\Workflow\RestoreSampleAction;
 use App\Http\Requests\StoreSampleRequest;
 use App\Http\Requests\UpdateSampleRequest;
 use App\Models\Client;
+use App\Models\ConservationStatus;
 use App\Models\ContainerType;
 use App\Models\DocumentType;
+use App\Models\MeasurementUnit;
 use App\Models\Sample;
 use App\Models\SampleType;
 use App\Queries\Samples\ActiveSamplesIndexQuery;
@@ -62,7 +64,17 @@ class SampleController extends Controller
         $sampleTypes = SampleType::where('is_active', true)->orderBy('name')->get();
         $containerTypes = ContainerType::where('is_active', true)->orderBy('name')->get();
 
-        return view('samples.create', compact('selectedClient', 'sampleTypes', 'containerTypes', 'mode'));
+        $conservationStatuses = ConservationStatus::active()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->pluck('name', 'name');
+
+        $quantityUnits = MeasurementUnit::active()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->pluck('name', 'name');
+
+        return view('samples.create', compact('selectedClient', 'sampleTypes', 'containerTypes', 'mode', 'conservationStatuses', 'quantityUnits'));
     }
 
     public function store(StoreSampleRequest $request, CreateSampleAction $createSample)
@@ -121,7 +133,17 @@ class SampleController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('samples.edit', compact('sample', 'sampleTypes', 'containerTypes'));
+        $conservationStatuses = ConservationStatus::active()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->pluck('name', 'name');
+
+        $quantityUnits = MeasurementUnit::active()
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->pluck('name', 'name');
+
+        return view('samples.edit', compact('sample', 'sampleTypes', 'containerTypes', 'conservationStatuses', 'quantityUnits'));
     }
 
     /**

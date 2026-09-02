@@ -48,6 +48,7 @@ class Sample extends Model
         'container_type_id',
         'conservation_status',
         'sample_quantity',
+        'sample_quantity_unit',
         'code_progressive',
         'code_year',
     ];
@@ -60,6 +61,7 @@ class Sample extends Model
         'accepted_at' => 'date',
         'archived' => 'boolean',
         'archived_at' => 'datetime',
+        'sample_quantity' => 'decimal:3',
     ];
 
     /**
