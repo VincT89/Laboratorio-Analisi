@@ -17,12 +17,6 @@
         $currentDirection = in_array(request('direction'), ['asc', 'desc'], true)
             ? request('direction')
             : 'desc';
-        $nextAcceptanceDirection = $currentSort === 'acceptance_number' && $currentDirection === 'desc'
-            ? 'asc'
-            : 'desc';
-        $nextCollectedDirection = $currentSort === 'collected_at' && $currentDirection === 'desc'
-            ? 'asc'
-            : 'desc';
     @endphp
 
     {{-- Statistiche --}}
@@ -93,32 +87,117 @@
             @endif
         </div>
 
-        <div class="data-table-scroll">
+        <div class="data-table-scroll"
+             x-data="{
+                 sortMenu: null,
+                 menuTop: 0,
+                 menuLeft: 0,
+                 toggleSortMenu(menu, trigger) {
+                     if (this.sortMenu === menu) {
+                         this.sortMenu = null;
+                         return;
+                     }
+
+                     const rect = trigger.getBoundingClientRect();
+                     this.menuTop = rect.bottom + 7;
+                     this.menuLeft = Math.max(8, Math.min(rect.left - 8, window.innerWidth - 193));
+                     this.sortMenu = menu;
+                 }
+             }"
+             @click.window="if (sortMenu && !$event.target.closest('.table-sort-dropdown') && !$event.target.closest('.table-sort-menu')) sortMenu = null"
+             @keydown.escape.window="sortMenu = null"
+             @resize.window="sortMenu = null"
+             @scroll.window="sortMenu = null"
+             @scroll="sortMenu = null">
             <table class="data-table samples-index-table">
                 <thead>
                     <tr>
                     <th aria-sort="{{ $currentSort === 'acceptance_number' ? ($currentDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}">
-                        <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'acceptance_number', 'direction' => $nextAcceptanceDirection])) }}"
-                           class="table-sort-link {{ $currentSort === 'acceptance_number' ? 'is-active' : '' }}"
-                           aria-label="Ordina per numero di accettazione in ordine {{ $nextAcceptanceDirection === 'asc' ? 'crescente' : 'decrescente' }}">
-                            <span>N. accettazione</span>
-                            @if($currentSort === 'acceptance_number')
-                                <span class="table-sort-order">{{ $currentDirection === 'asc' ? 'crescente' : 'decrescente' }}</span>
-                            @endif
-                        </a>
+                        <div class="table-sort-dropdown">
+                            <button type="button"
+                                    class="table-sort-trigger {{ $currentSort === 'acceptance_number' ? 'is-active' : '' }}"
+                                    @click="toggleSortMenu('acceptance_number', $event.currentTarget)"
+                                    :aria-expanded="(sortMenu === 'acceptance_number').toString()"
+                                    aria-haspopup="menu"
+                                    aria-controls="acceptance-number-sort-menu"
+                                    aria-label="Opzioni di ordinamento per numero di accettazione">
+                                <span>N. accettazione</span>
+                                @if($currentSort === 'acceptance_number')
+                                    <span class="table-sort-order">{{ $currentDirection === 'asc' ? 'crescente' : 'decrescente' }}</span>
+                                @endif
+                                <svg class="table-sort-chevron" viewBox="0 0 10 6" aria-hidden="true">
+                                    <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <template x-teleport="body">
+                                <div id="acceptance-number-sort-menu"
+                                     class="table-sort-menu"
+                                     role="menu"
+                                     x-show="sortMenu === 'acceptance_number'"
+                                     :style="{ '--sort-menu-top': menuTop + 'px', '--sort-menu-left': menuLeft + 'px' }"
+                                     style="display: none;">
+                                    <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'acceptance_number', 'direction' => 'asc'])) }}"
+                                       class="table-sort-option {{ $currentSort === 'acceptance_number' && $currentDirection === 'asc' ? 'is-active' : '' }}"
+                                       role="menuitem"
+                                       @if($currentSort === 'acceptance_number' && $currentDirection === 'asc') aria-current="true" @endif>
+                                        <span>Crescente</span>
+                                        <small>Numeri più bassi prima</small>
+                                    </a>
+                                    <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'acceptance_number', 'direction' => 'desc'])) }}"
+                                       class="table-sort-option {{ $currentSort === 'acceptance_number' && $currentDirection === 'desc' ? 'is-active' : '' }}"
+                                       role="menuitem"
+                                       @if($currentSort === 'acceptance_number' && $currentDirection === 'desc') aria-current="true" @endif>
+                                        <span>Decrescente</span>
+                                        <small>Numeri più alti prima</small>
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
                     </th>
                     <th>Cliente</th>
                     <th>Tipologia di campione</th>
                     <th>Note</th>
                     <th aria-sort="{{ $currentSort === 'collected_at' ? ($currentDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}">
-                        <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'collected_at', 'direction' => $nextCollectedDirection])) }}"
-                           class="table-sort-link {{ $currentSort === 'collected_at' ? 'is-active' : '' }}"
-                           aria-label="Ordina per data di prelievo in ordine {{ $nextCollectedDirection === 'asc' ? 'crescente' : 'decrescente' }}">
-                            <span>Data prelievo</span>
-                            @if($currentSort === 'collected_at')
-                                <span class="table-sort-order">{{ $currentDirection === 'asc' ? 'crescente' : 'decrescente' }}</span>
-                            @endif
-                        </a>
+                        <div class="table-sort-dropdown">
+                            <button type="button"
+                                    class="table-sort-trigger {{ $currentSort === 'collected_at' ? 'is-active' : '' }}"
+                                    @click="toggleSortMenu('collected_at', $event.currentTarget)"
+                                    :aria-expanded="(sortMenu === 'collected_at').toString()"
+                                    aria-haspopup="menu"
+                                    aria-controls="collected-at-sort-menu"
+                                    aria-label="Opzioni di ordinamento per data di prelievo">
+                                <span>Data prelievo</span>
+                                @if($currentSort === 'collected_at')
+                                    <span class="table-sort-order">{{ $currentDirection === 'asc' ? 'crescente' : 'decrescente' }}</span>
+                                @endif
+                                <svg class="table-sort-chevron" viewBox="0 0 10 6" aria-hidden="true">
+                                    <path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                            <template x-teleport="body">
+                                <div id="collected-at-sort-menu"
+                                     class="table-sort-menu"
+                                     role="menu"
+                                     x-show="sortMenu === 'collected_at'"
+                                     :style="{ '--sort-menu-top': menuTop + 'px', '--sort-menu-left': menuLeft + 'px' }"
+                                     style="display: none;">
+                                    <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'collected_at', 'direction' => 'asc'])) }}"
+                                       class="table-sort-option {{ $currentSort === 'collected_at' && $currentDirection === 'asc' ? 'is-active' : '' }}"
+                                       role="menuitem"
+                                       @if($currentSort === 'collected_at' && $currentDirection === 'asc') aria-current="true" @endif>
+                                        <span>Crescente</span>
+                                        <small>Meno recenti prima</small>
+                                    </a>
+                                    <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'collected_at', 'direction' => 'desc'])) }}"
+                                       class="table-sort-option {{ $currentSort === 'collected_at' && $currentDirection === 'desc' ? 'is-active' : '' }}"
+                                       role="menuitem"
+                                       @if($currentSort === 'collected_at' && $currentDirection === 'desc') aria-current="true" @endif>
+                                        <span>Decrescente</span>
+                                        <small>Più recenti prima</small>
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
                     </th>
                     <th>Stato</th>
                     <th>File</th>

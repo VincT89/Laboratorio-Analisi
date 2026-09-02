@@ -84,6 +84,21 @@ class SampleListPresentationTest extends TestCase
             ->assertSeeInOrder(['0009/25', '0002/26', '0001/27']);
     }
 
+    public function test_sorting_headers_offer_explicit_ascending_and_descending_menus(): void
+    {
+        $this->createSample('0001/26', 1, 26, '2026-09-01', 'Campione di prova');
+
+        $this->actingAs($this->admin)
+            ->get(route('samples.index'))
+            ->assertOk()
+            ->assertSee('Opzioni di ordinamento per numero di accettazione')
+            ->assertSee('Numeri più bassi prima')
+            ->assertSee('Numeri più alti prima')
+            ->assertSee('Opzioni di ordinamento per data di prelievo')
+            ->assertSee('Meno recenti prima')
+            ->assertSee('Più recenti prima');
+    }
+
     public function test_notes_are_visible_in_the_sample_list(): void
     {
         $this->createSample(
