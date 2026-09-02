@@ -143,6 +143,24 @@
 
     .sample-dl-notes { white-space: pre-wrap; }
 
+    .samples-index-table {
+        min-width: 1080px;
+    }
+
+    .sample-notes-cell {
+        min-width: 190px;
+        width: 24%;
+    }
+
+    .sample-notes-preview {
+        display: -webkit-box;
+        max-width: 300px;
+        overflow: hidden;
+        line-height: 1.35;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
     /* Upload form */
     .sample-upload-box { 
         padding: 20px 24px; 

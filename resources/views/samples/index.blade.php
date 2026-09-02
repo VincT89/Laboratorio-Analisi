@@ -10,6 +10,21 @@
 
 @section('content')
 
+    @php
+        $currentSort = in_array(request('sort'), ['collected_at', 'acceptance_number'], true)
+            ? request('sort')
+            : 'collected_at';
+        $currentDirection = in_array(request('direction'), ['asc', 'desc'], true)
+            ? request('direction')
+            : 'desc';
+        $nextAcceptanceDirection = $currentSort === 'acceptance_number' && $currentDirection === 'desc'
+            ? 'asc'
+            : 'desc';
+        $nextCollectedDirection = $currentSort === 'collected_at' && $currentDirection === 'desc'
+            ? 'asc'
+            : 'desc';
+    @endphp
+
     {{-- Statistiche --}}
     <div class="stats-grid">
         <div class="stat-card">
@@ -47,6 +62,8 @@
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
                 @endif
+                <input type="hidden" name="sort" value="{{ $currentSort }}">
+                <input type="hidden" name="direction" value="{{ $currentDirection }}">
                 <div class="table-search" style="min-width:250px;">
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                         <circle cx="5.5" cy="5.5" r="4" stroke="#AAA" stroke-width="1.2"/>
@@ -76,19 +93,39 @@
             @endif
         </div>
 
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Codice</th>
+        <div class="data-table-scroll">
+            <table class="data-table samples-index-table">
+                <thead>
+                    <tr>
+                    <th aria-sort="{{ $currentSort === 'acceptance_number' ? ($currentDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}">
+                        <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'acceptance_number', 'direction' => $nextAcceptanceDirection])) }}"
+                           class="table-sort-link {{ $currentSort === 'acceptance_number' ? 'is-active' : '' }}"
+                           aria-label="Ordina per numero di accettazione in ordine {{ $nextAcceptanceDirection === 'asc' ? 'crescente' : 'decrescente' }}">
+                            <span>N. accettazione</span>
+                            @if($currentSort === 'acceptance_number')
+                                <span class="table-sort-order">{{ $currentDirection === 'asc' ? 'crescente' : 'decrescente' }}</span>
+                            @endif
+                        </a>
+                    </th>
                     <th>Cliente</th>
                     <th>Tipo campione</th>
-                    <th>Data prelievo</th>
+                    <th>Note</th>
+                    <th aria-sort="{{ $currentSort === 'collected_at' ? ($currentDirection === 'asc' ? 'ascending' : 'descending') : 'none' }}">
+                        <a href="{{ route('samples.index', array_merge(request()->except('page'), ['sort' => 'collected_at', 'direction' => $nextCollectedDirection])) }}"
+                           class="table-sort-link {{ $currentSort === 'collected_at' ? 'is-active' : '' }}"
+                           aria-label="Ordina per data di prelievo in ordine {{ $nextCollectedDirection === 'asc' ? 'crescente' : 'decrescente' }}">
+                            <span>Data prelievo</span>
+                            @if($currentSort === 'collected_at')
+                                <span class="table-sort-order">{{ $currentDirection === 'asc' ? 'crescente' : 'decrescente' }}</span>
+                            @endif
+                        </a>
+                    </th>
                     <th>Stato</th>
                     <th>File</th>
                     <th></th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 @forelse($samples as $row)
                     <tr {!! !$row->isMasked() ? 'onclick="window.location=\''.route('samples.show', $row->sample).'\'"' : 'style="cursor: default;"' !!}>
                         <td><span class="sample-code">{{ $row->sample->code }}</span></td>
@@ -107,6 +144,13 @@
                                 <span style="color: #6b7280;">{{ $row->sampleTypeName() }}</span>
                             @else
                                 {{ $row->sampleTypeName() }}
+                            @endif
+                        </td>
+                        <td class="sample-notes-cell">
+                            @if($row->notesFull())
+                                <span class="sample-notes-preview" title="{{ $row->notesFull() }}">{{ $row->notesPreview() }}</span>
+                            @else
+                                <span class="table-empty-cell">{{ $row->notesPreview() }}</span>
                             @endif
                         </td>
                         <td>{{ $row->sample->collected_at->format('d/m/Y') }}</td>
@@ -144,11 +188,12 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="table-empty-row">Nessun campione trovato</td>
+                        <td colspan="8" class="table-empty-row">Nessun campione trovato</td>
                     </tr>
                 @endforelse
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
 
         @if($samples->hasPages())
             <div class="pagination">

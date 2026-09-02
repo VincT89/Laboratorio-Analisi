@@ -4,6 +4,7 @@ namespace App\Queries\Samples;
 
 use App\Models\Sample;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ActiveSamplesIndexQuery
@@ -23,7 +24,7 @@ class ActiveSamplesIndexQuery
     public function paginate(array $filters, User $user, int $perPage = 20): LengthAwarePaginator
     {
         $query = Sample::active()
-            ->with(['client'])
+            ->with(['client', 'sampleType'])
             ->withCount(['files' => fn($q) => $q->active()]);
 
         if (!empty($filters['search'])) {
@@ -59,13 +60,43 @@ class ActiveSamplesIndexQuery
             $query->where('accepted_at', '<=', \Carbon\Carbon::parse($filters['accepted_to'])->endOfDay());
         }
 
-        $paginator = $query->orderByDesc('collected_at')
-            ->paginate($perPage)
+        $this->applySorting($query, $filters);
+
+        $paginator = $query->paginate($perPage)
             ->withQueryString();
 
         $isAdmin = $user->isAdmin();
         $paginator->through(fn($sample) => new \App\ViewModels\SampleRowViewModel($sample, $isAdmin));
 
         return $paginator;
+    }
+
+    /**
+     * Applica esclusivamente gli ordinamenti ammessi dalla lista campioni.
+     */
+    private function applySorting(Builder $query, array $filters): void
+    {
+        $sort = in_array($filters['sort'] ?? null, ['collected_at', 'acceptance_number'], true)
+            ? $filters['sort']
+            : 'collected_at';
+
+        $direction = in_array($filters['direction'] ?? null, ['asc', 'desc'], true)
+            ? $filters['direction']
+            : 'desc';
+
+        if ($sort === 'acceptance_number') {
+            $query
+                // I vecchi record privi di progressivo restano in fondo alla lista.
+                ->orderByRaw('code_year IS NULL')
+                ->orderBy('code_year', $direction)
+                ->orderBy('code_progressive', $direction)
+                ->orderBy('code', $direction);
+
+            return;
+        }
+
+        $query
+            ->orderBy('collected_at', $direction)
+            ->orderBy('id', $direction);
     }
 }

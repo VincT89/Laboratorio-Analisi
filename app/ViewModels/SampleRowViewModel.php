@@ -4,6 +4,7 @@ namespace App\ViewModels;
 
 use App\Models\Sample;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class SampleRowViewModel
 {
@@ -93,5 +94,38 @@ class SampleRowViewModel
         }
 
         return $this->sample->files_count . ' file';
+    }
+
+    /**
+     * Anteprima delle note mostrata nella lista campioni.
+     */
+    public function notesPreview(): string
+    {
+        if ($this->isMasked()) {
+            return '******';
+        }
+
+        $notes = $this->normalizedNotes();
+
+        return $notes === null ? '—' : Str::limit($notes, 100);
+    }
+
+    /**
+     * Testo completo usato come approfondimento dell'anteprima.
+     */
+    public function notesFull(): ?string
+    {
+        if ($this->isMasked()) {
+            return null;
+        }
+
+        return $this->normalizedNotes();
+    }
+
+    private function normalizedNotes(): ?string
+    {
+        $notes = preg_replace('/\s+/u', ' ', trim((string) $this->sample->notes));
+
+        return $notes === '' ? null : $notes;
     }
 }
